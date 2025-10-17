@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  phone              String?             @unique
+  emailVerified      Boolean             @default(false)
+  phoneVerified      Boolean             @default(false)
+  passwordHash       String
+  role               String              @default("USER")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  auditLogs          AuditLog[]
+  listings           Listing[]
+  notifications      Notification[]
+  profile            Profile?
+  verificationTokens VerificationToken[]
+
+  @@map("users")
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  displayName String?
+  bio         String?
+  location    String?
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Listing {
+  id            String    @id @default(cuid())
+  ownerId       String
+  type          String
+  title         String
+  description   String
+  price         Decimal   @db.Decimal(10, 2)
+  status        String    @default("PENDING")
+  availableFrom DateTime?
+  capacity      Int?
+  sharedSlots   Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  media         Media[]
+
+  @@map("listings")
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  listingId String
+  url       String
+  key       String
+  type      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@map("media")
+}
+
+model VerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  type      String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_tokens")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  channel   String   @default("IN_APP")
+  payload   Json
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  permissions Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}

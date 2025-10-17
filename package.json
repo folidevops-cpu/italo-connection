@@ -1,0 +1,27 @@
+{
+  "name": "italoconnection",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.17.1",
+    "@prisma/nuxt": "^0.3.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/bcrypt": "^6.0.0",
+    "aws-sdk": "^2.1692.0",
+    "bcrypt": "^6.0.0",
+    "nuxt": "^4.1.3",
+    "nuxt-auth-utils": "^0.5.25",
+    "pg": "^8.16.3",
+    "prisma": "^6.17.1",
+    "tailwindcss": "^4.1.14",
+    "vue": "^3.5.22",
+    "vue-router": "^4.5.1"
+  }
+}

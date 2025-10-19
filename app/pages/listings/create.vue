@@ -18,17 +18,21 @@
         </div>
         <div class="ml-3">
           <h3 class="text-sm font-medium text-yellow-800">
-            Verification Required
+            Email Verification Required
           </h3>
           <div class="mt-2 text-sm text-yellow-700">
-            <p>You need to verify your email and phone before you can create listings.</p>
-            <div class="mt-3 space-x-4">
-              <NuxtLink v-if="!user?.emailVerified" to="/verify/email" class="font-medium underline">
-                Verify Email
-              </NuxtLink>
-              <NuxtLink v-if="!user?.phoneVerified" to="/verify/phone" class="font-medium underline">
-                Verify Phone
-              </NuxtLink>
+            <p>You need to verify your email before you can create listings.</p>
+            <div class="mt-3">
+              <button 
+                v-if="!isEmailVerified" 
+                @click="sendVerificationEmail" 
+                class="font-medium underline"
+                :disabled="isSending"
+              >
+                {{ isSending ? 'Sending...' : 'Send Verification Email' }}
+              </button>
+              <span v-if="emailSent" class="ml-2 text-green-600">Verification email sent! Please check your inbox.</span>
+              <span v-if="emailSendError" class="block mt-1 text-red-600">{{ emailSendError }}</span>
             </div>
           </div>
         </div>
@@ -222,15 +226,43 @@ useSeoMeta({
   description: 'Create a new listing on ItaloConnection marketplace'
 })
 
-// Get user session
-const { user } = useUserSession()
+// Use the global auth state composable
+const { user, refreshUser, isEmailVerified, canCreateListings } = useAuthState()
 
-// Check if user can create listings
-const canCreateListings = computed(() => {
-  if (!user.value) return false
-  const userData = user.value as any
-  return userData.emailVerified && userData.phoneVerified
+// Email verification state
+const isSending = ref(false)
+const emailSent = ref(false)
+const emailSendError = ref('')
+
+// Refresh session on mount to get latest verification status
+onMounted(async () => {
+  console.log('Listings create page mounted, refreshing session...')
+  await refreshUser()
 })
+
+// Handle verification email send
+const sendVerificationEmail = async () => {
+  isSending.value = true
+  emailSendError.value = ''
+  
+  try {
+    await $fetch('/api/verify/send', { method: 'POST' })
+    emailSent.value = true
+    setTimeout(() => {
+      emailSent.value = false
+    }, 5000) // Hide message after 5 seconds
+  } catch (error: any) {
+    console.error('Failed to send verification email:', error)
+    emailSendError.value = error.data?.message || 'Failed to send verification email. Please try again.'
+    
+    // Hide error after 5 seconds
+    setTimeout(() => {
+      emailSendError.value = ''
+    }, 5000)
+  } finally {
+    isSending.value = false
+  }
+}
 
 // Listing types
 const listingTypes = [

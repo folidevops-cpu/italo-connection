@@ -10,8 +10,25 @@
       </p>
     </div>
 
+    <!-- Success Message -->
+    <div v-if="route.query.verified === 'true'" class="mb-8">
+      <div class="bg-green-50 border border-green-200 rounded-md p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-green-800">Email Verified Successfully!</h3>
+            <p class="mt-2 text-sm text-green-700">You can now create listings.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Verification Status -->
-    <div v-if="!user?.emailVerified || !user?.phoneVerified" class="mb-8">
+    <div v-if="!isEmailVerified" class="mb-8">
       <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -21,17 +38,21 @@
           </div>
           <div class="ml-3">
             <h3 class="text-sm font-medium text-yellow-800">
-              Verification Required
+              Email Verification Required
             </h3>
             <div class="mt-2 text-sm text-yellow-700">
-              <p>You need to verify your email and phone before you can create listings.</p>
+              <p>You need to verify your email before you can create listings.</p>
               <div class="mt-2 space-x-4">
-                <NuxtLink v-if="!user?.emailVerified" to="/verify/email" class="font-medium underline">
-                  Verify Email
-                </NuxtLink>
-                <NuxtLink v-if="!user?.phoneVerified" to="/verify/phone" class="font-medium underline">
-                  Verify Phone
-                </NuxtLink>
+                <button 
+                  v-if="!isEmailVerified" 
+                  @click="sendVerificationEmail" 
+                  class="font-medium underline"
+                  :disabled="isSending"
+                >
+                  {{ isSending ? 'Sending...' : 'Verify Email' }}
+                </button>
+                <span v-if="emailSent" class="text-green-600">Verification email sent! Please check your inbox.</span>
+                <span v-if="emailSendError" class="text-red-600 block mt-1">{{ emailSendError }}</span>
               </div>
             </div>
           </div>
@@ -184,21 +205,64 @@ useSeoMeta({
   description: 'Manage your listings, profile, and notifications'
 })
 
-// Get session from nuxt-auth-utils
-const { user, loggedIn } = useUserSession()
+// Use the global auth state composable
+const { user, refreshUser, isEmailVerified, canCreateListings, userName } = useAuthState()
 
-// Computed user name
-const userName = computed(() => {
-  if (!user.value) return ''
-  const userData = user.value as any
-  return userData.displayName || userData.email || 'User'
+// Get route for query params
+const route = useRoute()
+
+// Email verification state
+const isSending = ref(false)
+const emailSent = ref(false)
+const emailSendError = ref('')
+
+// Handle verification email send
+const sendVerificationEmail = async () => {
+  isSending.value = true
+  emailSendError.value = ''
+  
+  try {
+    await $fetch('/api/verify/send', { method: 'POST' })
+    emailSent.value = true
+    setTimeout(() => {
+      emailSent.value = false
+    }, 5000) // Hide message after 5 seconds
+  } catch (error: any) {
+    console.error('Failed to send verification email:', error)
+    emailSendError.value = error.data?.message || 'Failed to send verification email. Please try again.'
+    
+    // Hide error after 5 seconds
+    setTimeout(() => {
+      emailSendError.value = ''
+    }, 5000)
+  } finally {
+    isSending.value = false
+  }
+}
+
+// Check for verification success message
+onMounted(async () => {
+  console.log('Dashboard mounted, refreshing user session...')
+  await refreshUser()
+  
+  // Check for verification success message
+  if (route.query.verified === 'true') {
+    console.log('Email verified! Session refreshed.')
+    emailSent.value = true
+    setTimeout(() => {
+      emailSent.value = false
+      // Remove query param from URL
+      navigateTo('/dashboard', { replace: true })
+    }, 5000)
+  }
 })
 
-// Check if user can create listings (both email and phone verified)
-const canCreateListings = computed(() => {
-  if (!user.value) return false
-  const userData = user.value as any
-  return userData.emailVerified && userData.phoneVerified
+// Watch for route changes and refresh session
+watch(() => route.query.verified, async (newVal) => {
+  if (newVal === 'true') {
+    console.log('Email verified, refreshing session...')
+    await refreshUser()
+  }
 })
 
 // Mock stats data - will be replaced with real API calls later

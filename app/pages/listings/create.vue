@@ -138,6 +138,93 @@
           />
         </div>
 
+        <!-- Image Upload -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Images (Maximum 4) *
+          </label>
+          <p class="text-sm text-gray-500 mb-3">
+            Upload up to 4 photos. First image will be the cover photo.
+          </p>
+
+          <!-- Upload Button -->
+          <div class="flex items-center gap-4 mb-4">
+            <label
+              for="image-upload"
+              class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              :class="{ 'opacity-50 cursor-not-allowed': uploadedImages.length >= 4 || uploading }"
+            >
+              <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              {{ uploading ? 'Uploading...' : 'Add Photos' }}
+            </label>
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              multiple
+              :disabled="uploadedImages.length >= 4 || uploading"
+              @change="handleImageSelect"
+              class="hidden"
+            />
+            <span class="text-sm text-gray-500">
+              {{ uploadedImages.length }} / 4 images
+            </span>
+          </div>
+
+          <!-- Upload Error -->
+          <div v-if="uploadError" class="mb-4 text-sm text-red-600">
+            {{ uploadError }}
+          </div>
+
+          <!-- Image Previews -->
+          <div v-if="uploadedImages.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div
+              v-for="(image, index) in uploadedImages"
+              :key="image.publicUrl"
+              class="relative group"
+            >
+              <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
+                <img
+                  :src="image.publicUrl"
+                  :alt="`Image ${index + 1}`"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+
+              <!-- Cover Badge -->
+              <div v-if="index === 0" class="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                Cover
+              </div>
+
+              <!-- Remove Button -->
+              <button
+                type="button"
+                @click="removeImage(index)"
+                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <!-- Order Badge -->
+              <div class="absolute bottom-2 left-2 bg-gray-800 bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                {{ index + 1 }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div v-else class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p class="mt-2 text-sm text-gray-500">No images uploaded yet</p>
+          </div>
+        </div>
+
         <!-- Room-specific fields -->
         <div v-if="form.type?.includes('room')" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -298,13 +385,96 @@ const form = ref({
   sharedSlots: ''
 })
 
+// Image upload state
+const uploadedImages = ref<Array<{ publicUrl: string; key: string }>>([])
+const uploading = ref(false)
+const uploadError = ref('')
+
+// Handle image file selection
+const handleImageSelect = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  
+  if (!files || files.length === 0) return
+
+  // Check if adding these files would exceed the limit
+  const remainingSlots = 4 - uploadedImages.value.length
+  if (files.length > remainingSlots) {
+    uploadError.value = `You can only upload ${remainingSlots} more image${remainingSlots !== 1 ? 's' : ''}`
+    setTimeout(() => uploadError.value = '', 5000)
+    return
+  }
+
+  // Validate file types and sizes
+  const validFiles: File[] = []
+  for (const file of Array.from(files)) {
+    // Check file type
+    if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/)) {
+      uploadError.value = `${file.name} is not a valid image type. Only JPEG, PNG, and WebP are allowed.`
+      setTimeout(() => uploadError.value = '', 5000)
+      continue
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      uploadError.value = `${file.name} is too large. Maximum size is 5MB.`
+      setTimeout(() => uploadError.value = '', 5000)
+      continue
+    }
+
+    validFiles.push(file)
+  }
+
+  if (validFiles.length === 0) return
+
+  uploading.value = true
+  uploadError.value = ''
+
+  try {
+    // Check if listing type is selected
+    if (!form.value.type) {
+      throw new Error('Please select a listing type first')
+    }
+
+    // Upload each file to the server (which uploads to S3)
+    for (const file of validFiles) {
+      // Create FormData to send the file
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('listingType', form.value.type)
+
+      // Upload to our server endpoint
+      const { publicUrl, key } = await $fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData
+      })
+
+      // Add to uploaded images
+      uploadedImages.value.push({ publicUrl, key })
+    }
+  } catch (error: any) {
+    console.error('Image upload failed:', error)
+    uploadError.value = error.message || 'Failed to upload images. Please try again.'
+  } finally {
+    uploading.value = false
+    // Reset input
+    target.value = ''
+  }
+}
+
+// Remove an image
+const removeImage = (index: number) => {
+  uploadedImages.value.splice(index, 1)
+}
+
 // Form validation
 const isFormValid = computed(() => {
   return form.value.type && 
          form.value.title && 
          form.value.description && 
          form.value.price &&
-         parseFloat(form.value.price) > 0
+         parseFloat(form.value.price) > 0 &&
+         uploadedImages.value.length > 0 // Require at least 1 image
 })
 
 // Submission state
@@ -315,7 +485,7 @@ const submitSuccess = ref(false)
 // ✅ Use $fetch for form submission
 const createListing = async () => {
   if (!isFormValid.value) {
-    submitError.value = 'Please fill in all required fields'
+    submitError.value = 'Please fill in all required fields and upload at least one image'
     return
   }
 
@@ -332,7 +502,14 @@ const createListing = async () => {
       location: form.value.location || null,
       availableFrom: form.value.availableFrom || null,
       capacity: form.value.capacity ? parseInt(form.value.capacity) : null,
-      sharedSlots: form.value.sharedSlots ? parseInt(form.value.sharedSlots) : null
+      sharedSlots: form.value.sharedSlots ? parseInt(form.value.sharedSlots) : null,
+      // Add images data
+      images: uploadedImages.value.map((img, index) => ({
+        url: img.publicUrl,
+        key: img.key,
+        type: 'image',
+        order: index
+      }))
     }
 
     await $fetch('/api/listings', {

@@ -226,12 +226,12 @@
 </template>
 
 <script setup lang="ts">
-// nuxt-auth-utils provides reactive session state
-const { user, loggedIn, fetch: fetchSession } = useUserSession()
+// Use the global auth state composable
+const { user, loggedIn, refreshUser, userName } = useAuthState()
 
 // Force refresh on component mount to ensure latest session state
 onMounted(async () => {
-  await fetchSession()
+  await refreshUser()
 })
 
 // Reactive state for UI
@@ -239,14 +239,6 @@ const showNotifications = ref(false)
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
 const unreadCount = ref(0) // Will be populated from notifications API later
-
-// Computed user name
-const userName = computed(() => {
-  if (!user.value) return ''
-  const userData = user.value as any
-  const { displayName, email } = userData
-  return displayName || email || 'User'
-})
 
 // Computed user avatar
 const userAvatar = computed(() => {

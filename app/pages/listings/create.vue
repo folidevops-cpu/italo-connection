@@ -24,7 +24,7 @@
             <p>You need to verify your email before you can create listings.</p>
             <div class="mt-3">
               <button 
-                v-if="!user?.emailVerified" 
+                v-if="!isEmailVerified" 
                 @click="sendVerificationEmail" 
                 class="font-medium underline"
                 :disabled="isSending"
@@ -226,20 +226,19 @@ useSeoMeta({
   description: 'Create a new listing on ItaloConnection marketplace'
 })
 
-// Get user session
-const { user } = useUserSession()
-
-// Check if user can create listings (only email verification required)
-const canCreateListings = computed(() => {
-  if (!user.value) return false
-  const userData = user.value as any
-  return userData.emailVerified
-})
+// Use the global auth state composable
+const { user, refreshUser, isEmailVerified, canCreateListings } = useAuthState()
 
 // Email verification state
 const isSending = ref(false)
 const emailSent = ref(false)
 const emailSendError = ref('')
+
+// Refresh session on mount to get latest verification status
+onMounted(async () => {
+  console.log('Listings create page mounted, refreshing session...')
+  await refreshUser()
+})
 
 // Handle verification email send
 const sendVerificationEmail = async () => {

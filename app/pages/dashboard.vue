@@ -28,7 +28,7 @@
     </div>
 
     <!-- Verification Status -->
-    <div v-if="!user?.emailVerified" class="mb-8">
+    <div v-if="!isEmailVerified" class="mb-8">
       <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -38,13 +38,13 @@
           </div>
           <div class="ml-3">
             <h3 class="text-sm font-medium text-yellow-800">
-              Verification Required
+              Email Verification Required
             </h3>
             <div class="mt-2 text-sm text-yellow-700">
               <p>You need to verify your email before you can create listings.</p>
               <div class="mt-2 space-x-4">
                 <button 
-                  v-if="!user?.emailVerified" 
+                  v-if="!isEmailVerified" 
                   @click="sendVerificationEmail" 
                   class="font-medium underline"
                   :disabled="isSending"
@@ -205,25 +205,11 @@ useSeoMeta({
   description: 'Manage your listings, profile, and notifications'
 })
 
-// Get session from nuxt-auth-utils
-const { user, loggedIn, fetch: fetchSession } = useUserSession()
+// Use the global auth state composable
+const { user, refreshUser, isEmailVerified, canCreateListings, userName } = useAuthState()
 
 // Get route for query params
 const route = useRoute()
-
-// Computed user name
-const userName = computed(() => {
-  if (!user.value) return ''
-  const userData = user.value as any
-  return userData.displayName || userData.email || 'User'
-})
-
-// Check if user can create listings (only email verification required)
-const canCreateListings = computed(() => {
-  if (!user.value) return false
-  const userData = user.value as any
-  return userData.emailVerified
-})
 
 // Email verification state
 const isSending = ref(false)
@@ -256,9 +242,26 @@ const sendVerificationEmail = async () => {
 
 // Check for verification success message
 onMounted(async () => {
+  console.log('Dashboard mounted, refreshing user session...')
+  await refreshUser()
+  
+  // Check for verification success message
   if (route.query.verified === 'true') {
-    // Refresh user session to get updated verification status
-    await fetchSession()
+    console.log('Email verified! Session refreshed.')
+    emailSent.value = true
+    setTimeout(() => {
+      emailSent.value = false
+      // Remove query param from URL
+      navigateTo('/dashboard', { replace: true })
+    }, 5000)
+  }
+})
+
+// Watch for route changes and refresh session
+watch(() => route.query.verified, async (newVal) => {
+  if (newVal === 'true') {
+    console.log('Email verified, refreshing session...')
+    await refreshUser()
   }
 })
 

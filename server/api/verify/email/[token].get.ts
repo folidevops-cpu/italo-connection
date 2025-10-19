@@ -37,10 +37,31 @@ export default defineEventHandler(async (event) => {
   }
 
   // Update user's email verification status
-  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: { id: verificationToken.userId },
-    data: { emailVerified: true }
+    data: { emailVerified: true },
+    include: { profile: true }
   })
+
+  console.log('User email verified successfully:', updatedUser.email)
+
+  // Update the session with the new user data
+  await setUserSession(event, {
+    user: {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      displayName: updatedUser.profile?.displayName || updatedUser.email.split('@')[0],
+      emailVerified: updatedUser.emailVerified,
+      phoneVerified: updatedUser.phoneVerified,
+      phone: updatedUser.phone,
+      avatarUrl: updatedUser.profile?.avatarUrl || null,
+      provider: 'email'
+    },
+    loggedInAt: new Date()
+  })
+
+  console.log('Session updated with verified email status')
 
   // Delete used token
   await prisma.verificationToken.delete({

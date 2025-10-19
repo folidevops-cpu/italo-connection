@@ -186,11 +186,11 @@ useSeoMeta({
 // Get user session to check if user can create listings
 const { user } = useUserSession()
 
-// Check if user can create listings (both email and phone verified)
+// Check if user can create listings (email verified only)
 const canCreateListings = computed(() => {
   if (!user.value) return false
   const userData = user.value as any
-  return userData.emailVerified && userData.phoneVerified
+  return userData.emailVerified
 })
 
 // Filter state

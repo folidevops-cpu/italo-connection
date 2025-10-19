@@ -29,9 +29,30 @@ model User {
 model Profile {
   id          String   @id @default(cuid())
   userId      String   @unique
+  
+  // Personal Information
+  firstName   String?
+  middleName  String?
+  surname     String?
   displayName String?
   bio         String?
-  location    String?
+  nationality String?
+  maritalStatus String? // single, married, prefer_not_say
+  
+  // Residence Information
+  street      String?
+  streetNumber String?
+  town        String?
+  province    String? // Italian provinces only
+  cap         String? // Italian postal code (Codice di Avviamento Postale)
+  googlePlaceId String? // For Google Places API integration
+  
+  // Social Media Links
+  facebookUrl  String?
+  instagramUrl String?
+  tiktokUrl    String?
+  
+  // Other
   avatarUrl   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

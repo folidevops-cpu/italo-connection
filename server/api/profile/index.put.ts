@@ -1,3 +1,7 @@
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
 export default defineEventHandler(async (event) => {
   // Check authentication using nuxt-auth-utils
   const { user } = await getUserSession(event)
@@ -8,51 +12,152 @@ export default defineEventHandler(async (event) => {
     })
   }
   
-  const { displayName, bio, location } = await readBody(event)
+  const body = await readBody(event)
+  const {
+    // Personal Information
+    firstName,
+    middleName,
+    surname,
+    displayName,
+    bio,
+    nationality,
+    maritalStatus,
+    
+    // Residence Information
+    street,
+    streetNumber,
+    town,
+    province,
+    cap,
+    googlePlaceId,
+    
+    // Social Media
+    facebookUrl,
+    instagramUrl,
+    tiktokUrl,
+    
+    // Other
+    avatarUrl
+  } = body
   
   try {
-    // TODO: Update user profile in database using Prisma
-    // const updatedProfile = await prisma.profile.update({
-    //   where: { userId: user.id },
-    //   data: {
-    //     displayName,
-    //     bio,
-    //     location
-    //   },
-    //   include: { user: true }
-    // })
-    
-    // For now, return updated mock data
     const userData = user as any
-    const updatedProfile = {
-      id: userData.id,
-      displayName: displayName || userData.displayName,
-      bio: bio || '',
-      location: location || '',
-      avatarUrl: '',
-      user: {
-        email: userData.email,
-        phone: '+1234567890',
-        emailVerified: userData.emailVerified || false,
-        phoneVerified: userData.phoneVerified || false,
-        role: userData.role || 'user'
-      }
+    
+    // Validate marital status if provided
+    if (maritalStatus && !['single', 'married', 'prefer_not_say'].includes(maritalStatus)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid marital status'
+      })
     }
+    
+    // Validate social media URLs if provided
+    if (facebookUrl && !isValidUrl(facebookUrl)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid Facebook URL'
+      })
+    }
+    
+    if (instagramUrl && !isValidUrl(instagramUrl)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid Instagram URL'
+      })
+    }
+    
+    if (tiktokUrl && !isValidUrl(tiktokUrl)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid TikTok URL'
+      })
+    }
+    
+    // Update profile in database
+    const updatedProfile = await prisma.profile.upsert({
+      where: { userId: userData.id },
+      update: {
+        firstName,
+        middleName,
+        surname,
+        displayName,
+        bio,
+        nationality,
+        maritalStatus,
+        street,
+        streetNumber,
+        town,
+        province,
+        cap,
+        googlePlaceId,
+        facebookUrl,
+        instagramUrl,
+        tiktokUrl,
+        avatarUrl
+      },
+      create: {
+        userId: userData.id,
+        firstName,
+        middleName,
+        surname,
+        displayName: displayName || userData.email?.split('@')[0] || '',
+        bio,
+        nationality,
+        maritalStatus,
+        street,
+        streetNumber,
+        town,
+        province,
+        cap,
+        googlePlaceId,
+        facebookUrl,
+        instagramUrl,
+        tiktokUrl,
+        avatarUrl
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+            phone: true,
+            emailVerified: true,
+            phoneVerified: true,
+            role: true
+          }
+        }
+      }
+    })
     
     // Update session with new display name
     await setUserSession(event, {
       user: {
         ...userData,
-        displayName: displayName || userData.displayName
+        displayName: updatedProfile.displayName || userData.displayName
       },
       loggedInAt: new Date()
     })
     
     return updatedProfile
   } catch (error: any) {
+    console.error('Failed to update profile:', error)
+    
+    if (error.statusCode) {
+      throw error
+    }
+    
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to update profile'
     })
   }
 })
+
+// Helper function to validate URLs
+function isValidUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}

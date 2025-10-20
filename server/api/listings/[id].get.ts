@@ -1,17 +1,4 @@
 export default defineEventHandler(async (event) => {
-<<<<<<< HEAD
-  // Check authentication
-  const { user } = await getUserSession(event)
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized'
-    })
-  }
-
-  const userData = user as any
-=======
->>>>>>> dev
   const listingId = getRouterParam(event, 'id')
 
   if (!listingId) {
@@ -25,11 +12,7 @@ export default defineEventHandler(async (event) => {
     const { PrismaClient } = await import('@prisma/client')
     const prisma = new PrismaClient()
 
-<<<<<<< HEAD
-    // Fetch listing with media
-=======
     // Fetch listing with media and owner info
->>>>>>> dev
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
       include: {
@@ -37,8 +20,6 @@ export default defineEventHandler(async (event) => {
           orderBy: {
             order: 'asc'
           }
-<<<<<<< HEAD
-=======
         },
         owner: {
           select: {
@@ -51,7 +32,6 @@ export default defineEventHandler(async (event) => {
               }
             }
           }
->>>>>>> dev
         }
       }
     })
@@ -65,13 +45,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-<<<<<<< HEAD
-    // Check if user owns the listing
-    if (listing.ownerId !== userData.id) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'You do not have permission to view this listing'
-=======
     // Get current user (if logged in)
     const { user } = await getUserSession(event)
     const userData = user as any
@@ -89,7 +62,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 403,
         statusMessage: 'This listing is not publicly available'
->>>>>>> dev
       })
     }
 

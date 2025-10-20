@@ -20,6 +20,15 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // Check if AWS credentials are configured
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    console.error('AWS credentials not configured')
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Server configuration error: AWS credentials not set'
+    })
+  }
+
   // Get the uploaded file from the request
   const form = await readMultipartFormData(event)
   
@@ -78,10 +87,18 @@ export default defineEventHandler(async (event) => {
       key
     }
   } catch (error: any) {
-    console.error('Failed to upload file:', error)
+    console.error('Failed to upload file to S3:', error)
+    console.error('Error details:', {
+      message: error.message,
+      code: error.Code || error.code,
+      statusCode: error.$metadata?.httpStatusCode,
+      bucket: BUCKET_NAME,
+      key: key,
+      region: process.env.AWS_REGION
+    })
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to upload file'
+      statusMessage: `Failed to upload file: ${error.message || 'Unknown error'}`
     })
   }
 })

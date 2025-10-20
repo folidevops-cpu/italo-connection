@@ -135,17 +135,14 @@
         <!-- Current Images -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            Images ({{ currentImages.length + uploadedImages.length }} / 4)
+            Current Images
           </label>
           <p class="text-sm text-gray-500 mb-3">
-            Click the X to remove an image. You can have up to 4 images total.
+            These are your current images. To change images, upload new ones below.
           </p>
-
-          <!-- Current Images Grid -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <!-- Existing Images -->
             <div
-              v-for="(image, index) in currentImages"
+              v-for="(image, index) in listing.media"
               :key="image.id"
               class="relative group"
             >
@@ -156,94 +153,83 @@
                   class="w-full h-full object-cover"
                 />
               </div>
-              <div v-if="index === 0 && uploadedImages.length === 0" class="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+              <div v-if="index === 0" class="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
                 Cover
-              </div>
-              <!-- Delete Button -->
-              <button
-                type="button"
-                @click="deleteCurrentImage(image.id, index)"
-                :disabled="deletingImageId === image.id"
-                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-              >
-                <svg v-if="deletingImageId !== image.id" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <svg v-else class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </button>
-              <div class="absolute bottom-2 left-2 bg-gray-800 bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                {{ index + 1 }}
-              </div>
-            </div>
-
-            <!-- New Uploaded Images -->
-            <div
-              v-for="(image, index) in uploadedImages"
-              :key="image.publicUrl"
-              class="relative group"
-            >
-              <div class="aspect-square rounded-lg overflow-hidden border-2 border-green-500">
-                <img
-                  :src="image.publicUrl"
-                  :alt="`New image ${index + 1}`"
-                  class="w-full h-full object-cover"
-                />
-              </div>
-              <div v-if="currentImages.length === 0 && index === 0" class="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
-                New Cover
-              </div>
-              <button
-                type="button"
-                @click="removeNewImage(index)"
-                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              <div class="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
-                New
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Add Images Button -->
-          <div v-if="currentImages.length + uploadedImages.length < 4">
+        <!-- New Image Upload (Optional) -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Update Images (Optional)
+          </label>
+          <p class="text-sm text-gray-500 mb-3">
+            Upload new images to replace the current ones. Maximum 4 images.
+          </p>
+
+          <!-- Upload Button -->
+          <div class="flex items-center gap-4 mb-4">
             <label
               for="image-upload"
               class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              :class="{ 'opacity-50 cursor-not-allowed': uploading }"
+              :class="{ 'opacity-50 cursor-not-allowed': uploadedImages.length >= 4 || uploading }"
             >
               <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              {{ uploading ? 'Uploading...' : 'Add More Photos' }}
+              {{ uploading ? 'Uploading...' : 'Upload New Photos' }}
             </label>
             <input
               id="image-upload"
               type="file"
               accept="image/jpeg,image/jpg,image/png,image/webp"
               multiple
-              :disabled="uploading || currentImages.length + uploadedImages.length >= 4"
+              :disabled="uploadedImages.length >= 4 || uploading"
               @change="handleImageSelect"
               class="hidden"
             />
-            <span class="ml-3 text-sm text-gray-500">
-              {{ 4 - (currentImages.length + uploadedImages.length) }} slot{{ (4 - (currentImages.length + uploadedImages.length)) !== 1 ? 's' : '' }} remaining
+            <span v-if="uploadedImages.length > 0" class="text-sm text-gray-500">
+              {{ uploadedImages.length }} new image{{ uploadedImages.length !== 1 ? 's' : '' }} selected
             </span>
           </div>
 
           <!-- Upload Error -->
-          <div v-if="uploadError" class="mt-3 text-sm text-red-600">
+          <div v-if="uploadError" class="mb-4 text-sm text-red-600">
             {{ uploadError }}
           </div>
 
-          <!-- Delete Error -->
-          <div v-if="deleteError" class="mt-3 text-sm text-red-600">
-            {{ deleteError }}
+          <!-- New Image Previews -->
+          <div v-if="uploadedImages.length > 0" class="space-y-3">
+            <p class="text-sm font-medium text-green-700">New images (will replace current images):</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div
+                v-for="(image, index) in uploadedImages"
+                :key="image.publicUrl"
+                class="relative group"
+              >
+                <div class="aspect-square rounded-lg overflow-hidden border-2 border-green-500">
+                  <img
+                    :src="image.publicUrl"
+                    :alt="`New image ${index + 1}`"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div v-if="index === 0" class="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                  New Cover
+                </div>
+                <button
+                  type="button"
+                  @click="removeImage(index)"
+                  class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -314,11 +300,8 @@ const form = ref({
 
 // Image upload state
 const uploadedImages = ref<Array<{ publicUrl: string; key: string }>>([])
-const currentImages = ref<Array<any>>([])
 const uploading = ref(false)
 const uploadError = ref('')
-const deleteError = ref('')
-const deletingImageId = ref<string | null>(null)
 
 // Submission state
 const submitting = ref(false)
@@ -339,8 +322,6 @@ watchEffect(() => {
       capacity: listing.value.capacity?.toString() || '',
       sharedSlots: listing.value.sharedSlots?.toString() || ''
     }
-    // Initialize current images
-    currentImages.value = [...(listing.value.media || [])]
   }
 })
 
@@ -361,12 +342,9 @@ const handleImageSelect = async (event: Event) => {
   
   if (!files || files.length === 0) return
 
-  // Check total images (current + new + to be uploaded)
-  const totalImages = currentImages.value.length + uploadedImages.value.length
-  const remainingSlots = 4 - totalImages
-  
-  if (files.length > remainingSlots) {
-    uploadError.value = `You can only add ${remainingSlots} more image${remainingSlots !== 1 ? 's' : ''}`
+  // Check if adding these files would exceed the limit
+  if (files.length > 4) {
+    uploadError.value = `Maximum 4 images allowed`
     setTimeout(() => uploadError.value = '', 5000)
     return
   }
@@ -391,6 +369,7 @@ const handleImageSelect = async (event: Event) => {
 
   uploading.value = true
   uploadError.value = ''
+  uploadedImages.value = [] // Clear previous selections
 
   try {
     for (const file of validFiles) {
@@ -408,58 +387,31 @@ const handleImageSelect = async (event: Event) => {
   } catch (error: any) {
     console.error('Image upload failed:', error)
     uploadError.value = error.message || 'Failed to upload images'
+    uploadedImages.value = []
   } finally {
     uploading.value = false
     target.value = ''
   }
 }
 
-// Delete a current image from the listing
-const deleteCurrentImage = async (mediaId: string, index: number) => {
-  if (!confirm('Are you sure you want to delete this image?')) {
-    return
-  }
-
-  deletingImageId.value = mediaId
-  deleteError.value = ''
-
-  try {
-    await $fetch(`/api/listings/media/${mediaId}`, {
-      method: 'DELETE'
-    })
-
-    // Remove from current images array
-    currentImages.value.splice(index, 1)
-  } catch (error: any) {
-    console.error('Failed to delete image:', error)
-    deleteError.value = error.data?.message || 'Failed to delete image'
-    setTimeout(() => deleteError.value = '', 5000)
-  } finally {
-    deletingImageId.value = null
-  }
-}
-
-// Remove a newly uploaded image (before saving)
-const removeNewImage = (index: number) => {
+// Remove an image
+const removeImage = (index: number) => {
   uploadedImages.value.splice(index, 1)
 }
 
 // Form validation
 const isFormValid = computed(() => {
-  const totalImages = currentImages.value.length + uploadedImages.value.length
   return form.value.type && 
          form.value.title && 
          form.value.description && 
          form.value.price &&
-         parseFloat(form.value.price) > 0 &&
-         totalImages > 0 && // At least 1 image required
-         totalImages <= 4   // Maximum 4 images
+         parseFloat(form.value.price) > 0
 })
 
 // Update listing
 const updateListing = async () => {
   if (!isFormValid.value) {
-    submitError.value = 'Please fill in all required fields and ensure you have 1-4 images'
+    submitError.value = 'Please fill in all required fields'
     return
   }
 
@@ -478,24 +430,14 @@ const updateListing = async () => {
       sharedSlots: form.value.sharedSlots ? parseInt(form.value.sharedSlots) : null
     }
 
-    // If there are new images, combine current and new images
+    // Only include images if new ones were uploaded
     if (uploadedImages.value.length > 0) {
-      // Combine current images (that weren't deleted) with new images
-      const allImages = [
-        ...currentImages.value.map((img, index) => ({
-          url: img.url,
-          key: img.key,
-          type: 'image',
-          order: index
-        })),
-        ...uploadedImages.value.map((img, index) => ({
-          url: img.publicUrl,
-          key: img.key,
-          type: 'image',
-          order: currentImages.value.length + index
-        }))
-      ]
-      updateData.images = allImages
+      updateData.images = uploadedImages.value.map((img, index) => ({
+        url: img.publicUrl,
+        key: img.key,
+        type: 'image',
+        order: index
+      }))
     }
 
     await $fetch(`/api/listings/${listingId}`, {

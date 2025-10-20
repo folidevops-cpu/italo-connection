@@ -165,6 +165,14 @@
                 {{ verifying === user.id ? 'Verifying...' : 'Verify' }}
               </button>
               <button
+                v-if="user.emailVerified && user.id !== currentUserId"
+                @click="unverifyUser(user.id)"
+                class="text-orange-600 hover:text-orange-900"
+                :disabled="unverifying === user.id"
+              >
+                {{ unverifying === user.id ? 'Suspending...' : 'Suspend' }}
+              </button>
+              <button
                 v-if="user.role === 'USER'"
                 @click="makeAdmin(user.id)"
                 class="text-purple-600 hover:text-purple-900"
@@ -180,12 +188,14 @@
               >
                 {{ updating === user.id ? 'Updating...' : 'Remove Admin' }}
               </button>
-              <NuxtLink
-                :to="`/admin/users/${user.id}`"
-                class="text-blue-600 hover:text-blue-900"
+              <button
+                v-if="user.id !== currentUserId"
+                @click="showDeleteModal(user)"
+                class="text-red-600 hover:text-red-900"
+                :disabled="deleting === user.id"
               >
-                View Details
-              </NuxtLink>
+                {{ deleting === user.id ? 'Deleting...' : 'Delete' }}
+              </button>
             </td>
           </tr>
         </tbody>
@@ -236,6 +246,63 @@
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="deleteModalOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+          <div class="flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mx-auto">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 text-center mt-4">
+            Delete User Account
+          </h3>
+          <div class="mt-4">
+            <p class="text-sm text-gray-500 mb-4">
+              Are you sure you want to permanently delete <strong>{{ userToDelete?.email }}</strong>?
+            </p>
+            <p class="text-sm text-red-600 font-medium mb-4">
+              This will delete:
+            </p>
+            <ul class="text-sm text-gray-600 list-disc list-inside mb-4 space-y-1">
+              <li>User profile and account data</li>
+              <li>All listings created by this user</li>
+              <li>All images uploaded by this user</li>
+              <li>All notifications</li>
+            </ul>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Reason for deletion (required):
+              </label>
+              <textarea
+                v-model="deleteReason"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                placeholder="Enter reason for deleting this account..."
+              ></textarea>
+            </div>
+          </div>
+          <div class="mt-6 flex gap-3">
+            <button
+              @click="closeDeleteModal"
+              :disabled="deleting !== null"
+              class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              @click="deleteUser"
+              :disabled="deleting !== null || !deleteReason.trim()"
+              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium disabled:opacity-50"
+            >
+              {{ deleting ? 'Deleting...' : 'Delete Permanently' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -270,6 +337,13 @@ const hasMore = ref(true)
 // Loading states
 const verifying = ref<string | null>(null)
 const updating = ref<string | null>(null)
+const unverifying = ref<string | null>(null)
+const deleting = ref<string | null>(null)
+
+// Delete modal state
+const deleteModalOpen = ref(false)
+const userToDelete = ref<any>(null)
+const deleteReason = ref('')
 
 // Build query params
 const queryParams = computed(() => {
@@ -394,6 +468,68 @@ const removeAdmin = async (userId: string) => {
     alert('Failed to update user role: ' + error.message)
   } finally {
     updating.value = null
+  }
+}
+
+// Unverify user (suspend account)
+const unverifyUser = async (userId: string) => {
+  const reason = prompt('Please provide a reason for suspending this account:')
+  if (!reason) return
+  
+  unverifying.value = userId
+  try {
+    await $fetch(`/api/admin/users/${userId}/unverify`, {
+      method: 'POST',
+      body: { reason }
+    })
+    alert('User account has been suspended successfully')
+    await refresh()
+  } catch (error: any) {
+    alert('Failed to suspend user: ' + error.message)
+  } finally {
+    unverifying.value = null
+  }
+}
+
+// Show delete modal
+const showDeleteModal = (user: any) => {
+  userToDelete.value = user
+  deleteReason.value = ''
+  deleteModalOpen.value = true
+}
+
+// Close delete modal
+const closeDeleteModal = () => {
+  deleteModalOpen.value = false
+  userToDelete.value = null
+  deleteReason.value = ''
+}
+
+// Delete user permanently
+const deleteUser = async () => {
+  if (!deleteReason.value.trim()) {
+    alert('Please provide a reason for deletion')
+    return
+  }
+
+  if (!userToDelete.value) return
+
+  const userId = userToDelete.value.id
+  deleting.value = userId
+  
+  try {
+    const result: any = await $fetch(`/api/admin/users/${userId}/delete`, {
+      method: 'POST',
+      body: { reason: deleteReason.value }
+    })
+    
+    alert(`User deleted successfully.\n\nListings deleted: ${result.details.listingsDeleted}\nImages deleted: ${result.details.imagesDeleted}`)
+    closeDeleteModal()
+    await refresh()
+  } catch (error: any) {
+    alert('Failed to delete user: ' + error.message)
+  } finally {
+    deleting.value = null
   }
 }
 </script>

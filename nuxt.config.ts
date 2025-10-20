@@ -34,6 +34,9 @@ export default defineNuxtConfig({
     smtpPort: process.env.SMTP_PORT,
     smtpUser: process.env.SMTP_USER,
     smtpPass: process.env.SMTP_PASS,
+    smtpFromEmail: process.env.SMTP_FROM_EMAIL,
+    smtpFromName: process.env.SMTP_FROM_NAME,
+    adminEmail: process.env.ADMIN_EMAIL,
     
     // SMS Configuration
     twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,

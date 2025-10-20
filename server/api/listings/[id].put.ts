@@ -65,7 +65,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+<<<<<<< HEAD
     if (existingListing.ownerId !== userData.id) {
+=======
+    // Check if user owns the listing or is an admin
+    const isOwner = existingListing.ownerId === userData.id
+    const isAdmin = userData.role === 'ADMIN'
+    
+    if (!isOwner && !isAdmin) {
+>>>>>>> dev
       await prisma.$disconnect()
       throw createError({
         statusCode: 403,

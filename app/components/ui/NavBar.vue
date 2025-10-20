@@ -39,6 +39,15 @@
               Profile
             </NuxtLink>
             
+            <!-- Admin link (only for admin users) -->
+            <NuxtLink 
+              v-if="isAdmin"
+              to="/admin" 
+              class="text-purple-600 hover:text-purple-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Admin
+            </NuxtLink>
+            
             <!-- Notifications bell -->
             <div class="relative">
               <button 
@@ -197,6 +206,13 @@
             >
               Profile
             </NuxtLink>
+            <NuxtLink 
+              v-if="isAdmin"
+              to="/admin" 
+              class="block text-purple-600 hover:text-purple-900 px-3 py-2 rounded-md text-base font-medium"
+            >
+              Admin
+            </NuxtLink>
             <button 
               @click="handleLogout" 
               class="block w-full text-left text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
@@ -245,6 +261,13 @@ const userAvatar = computed(() => {
   if (!user.value) return null
   const userData = user.value as any
   return userData.avatarUrl || null
+})
+
+// Check if user is admin
+const isAdmin = computed(() => {
+  if (!user.value) return false
+  const userData = user.value as any
+  return userData.role === 'ADMIN'
 })
 
 // UI toggle functions

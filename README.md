@@ -1,6 +1,12 @@
-# Nuxt Minimal Starter
+# Italo Connection
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A Nuxt-based marketplace application for listings and rentals in Italy.
+
+## Quick Links
+
+- 📖 [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction)
+- 🔐 [Admin Setup](./scripts/README.md) - Create admin users
+- ☁️ [S3 Setup](./S3_SETUP.md) - Configure AWS S3 for image uploads
 
 ## Setup
 
@@ -73,3 +79,25 @@ bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## Utility Scripts
+
+The `/scripts` directory contains utility scripts for managing the application:
+
+### Create Admin User
+
+```bash
+npx tsx scripts/create-admin.ts
+```
+
+Interactively creates a new admin user or upgrades an existing user to admin role. See [scripts/README.md](./scripts/README.md) for full documentation.
+
+## Environment Variables
+
+Required environment variables (see `.env.example`):
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `AWS_ACCESS_KEY_ID` - AWS access key for S3
+- `AWS_SECRET_ACCESS_KEY` - AWS secret key for S3
+- `AWS_REGION` - AWS region (e.g., eu-north-1)
+- `AWS_S3_BUCKET` - S3 bucket name

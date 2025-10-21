@@ -193,7 +193,7 @@ const success = ref('')
 // Check if already logged in
 const { loggedIn } = useUserSession()
 if (loggedIn.value) {
-  await navigateTo('/dashboard')
+  await navigateTo('/')
 }
 
 // Form validation
@@ -251,7 +251,7 @@ const handleRegister = async () => {
     
     // Navigate after delay
     setTimeout(async () => {
-      await navigateTo('/dashboard')
+      await navigateTo('/')
     }, 1500)
   } catch (err: any) {
     error.value = err.data?.message || 'Failed to create account'

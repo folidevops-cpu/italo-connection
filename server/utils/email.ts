@@ -299,3 +299,174 @@ The ItaloConnection Team
     text,
   })
 }
+
+// Email template for new notification alert
+export const sendNewNotificationEmail = async (
+  userEmail: string,
+  userName: string,
+  notificationCount: number = 1
+): Promise<boolean> => {
+  const config = useRuntimeConfig()
+  const appUrl = config.public?.apiBaseUrl || 'http://localhost:3000'
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background-color: #2563eb;
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+          border-radius: 5px 5px 0 0;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        .bell-icon {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+        .content {
+          background-color: #f9fafb;
+          padding: 30px;
+          border: 1px solid #e5e7eb;
+          border-top: none;
+          border-radius: 0 0 5px 5px;
+        }
+        .notification-badge {
+          display: inline-block;
+          background-color: #ef4444;
+          color: white;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-weight: bold;
+          font-size: 18px;
+          margin: 20px 0;
+        }
+        .message {
+          font-size: 16px;
+          color: #4b5563;
+          margin: 20px 0;
+        }
+        .button {
+          display: inline-block;
+          padding: 14px 32px;
+          background-color: #2563eb;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          margin: 20px 0;
+          font-weight: bold;
+          font-size: 16px;
+        }
+        .button:hover {
+          background-color: #1d4ed8;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 12px;
+          color: #6b7280;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+        }
+        .info-box {
+          background-color: #dbeafe;
+          border-left: 4px solid #2563eb;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 4px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="bell-icon">🔔</div>
+        <h1>You Have ${notificationCount} New Notification${notificationCount > 1 ? 's' : ''}!</h1>
+      </div>
+      <div class="content">
+        <p class="message">Hello ${userName},</p>
+        
+        <div style="text-align: center;">
+          <div class="notification-badge">
+            ${notificationCount} New
+          </div>
+        </div>
+        
+        <p class="message">
+          You have received ${notificationCount} new notification${notificationCount > 1 ? 's' : ''} on ItaloConnection.
+        </p>
+        
+        <div class="info-box">
+          <strong>Important:</strong> For security and privacy reasons, we don't include notification details in emails. 
+          Please log in to your account to view your notifications.
+        </div>
+        
+        <p class="message">
+          Click the button below to sign in and view your notification${notificationCount > 1 ? 's' : ''}:
+        </p>
+        
+        <div style="text-align: center;">
+          <a href="${appUrl}/notifications" class="button">
+            View Notification${notificationCount > 1 ? 's' : ''}
+          </a>
+        </div>
+        
+        <p class="message" style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+          <strong>Quick tip:</strong> You can manage your notification preferences and view all notifications 
+          by clicking the bell icon 🔔 in your account dashboard.
+        </p>
+      </div>
+      <div class="footer">
+        <p>This is an automated notification from ItaloConnection.</p>
+        <p>If you didn't expect this notification, you can safely ignore this email.</p>
+        <p style="margin-top: 15px;">
+          <a href="${appUrl}" style="color: #2563eb; text-decoration: none;">Visit ItaloConnection</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+New Notification - ItaloConnection
+
+Hello ${userName},
+
+You have ${notificationCount} new notification${notificationCount > 1 ? 's' : ''} on ItaloConnection.
+
+For security and privacy reasons, we don't include notification details in emails. 
+Please log in to your account to view your notifications.
+
+View your notifications: ${appUrl}/notifications
+
+Quick tip: You can manage your notification preferences and view all notifications 
+by clicking the bell icon in your account dashboard.
+
+---
+This is an automated notification from ItaloConnection.
+If you didn't expect this notification, you can safely ignore this email.
+
+Visit ItaloConnection: ${appUrl}
+  `
+
+  return await sendEmail({
+    to: userEmail,
+    subject: `🔔 You have ${notificationCount} new notification${notificationCount > 1 ? 's' : ''} - ItaloConnection`,
+    html,
+    text,
+  })
+}

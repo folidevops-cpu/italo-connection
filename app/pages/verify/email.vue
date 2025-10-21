@@ -120,7 +120,7 @@ const verifyCode = async () => {
     })
 
     // Redirect to dashboard on success
-    await navigateTo('/dashboard')
+    await navigateTo('/')
   } catch (err: any) {
     error.value = err.data?.message || 'Invalid verification code'
   } finally {

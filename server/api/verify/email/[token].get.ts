@@ -45,6 +45,9 @@ export default defineEventHandler(async (event) => {
 
   console.log('User email verified successfully:', updatedUser.email)
 
+  // Create notification for successful verification
+  await NotificationHelpers.emailVerified(prisma, updatedUser.id)
+
   // Update the session with the new user data
   await setUserSession(event, {
     user: {

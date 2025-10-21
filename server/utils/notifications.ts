@@ -6,6 +6,7 @@ export type NotificationType =
   | 'PHONE_VERIFIED'
   | 'LISTING_APPROVED'
   | 'LISTING_REJECTED'
+  | 'LISTING_DELETED'
   | 'NEW_INQUIRY'
   | 'NEW_MESSAGE'
   | 'ACCOUNT_SUSPENDED'
@@ -50,14 +51,20 @@ export const createNotification = async (
         // Fetch user details for email
         const user = await prisma.user.findUnique({
           where: { id: params.userId },
-          select: { email: true, name: true }
+          select: { 
+            email: true, 
+            profile: {
+              select: { displayName: true, firstName: true }
+            }
+          }
         })
 
         if (user && user.email) {
           console.log(`📧 Sending email alert to ${user.email}...`)
+          const userName = user.profile?.displayName || user.profile?.firstName || 'User'
           await sendNewNotificationEmail(
             user.email,
-            user.name || 'User',
+            userName,
             1
           )
           console.log(`✅ Email alert sent successfully`)
@@ -123,6 +130,9 @@ export const getNotificationMessage = (
     case 'LISTING_REJECTED':
       return `❌ Your listing "${payload.listingTitle}" was rejected. Reason: ${payload.reason || 'Not specified'}`
     
+    case 'LISTING_DELETED':
+      return `🗑️ Your listing "${payload.listingTitle}" has been deleted successfully`
+    
     case 'NEW_INQUIRY':
       return `💬 You have a new inquiry about "${payload.listingTitle}"`
     
@@ -171,19 +181,63 @@ export const NotificationHelpers = {
   },
 
   async listingApproved(prisma: PrismaClient, userId: string, listingTitle: string, listingId: string) {
-    return createNotification(prisma, {
+    // Get user details for email
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { 
+        email: true, 
+        profile: {
+          select: { displayName: true, firstName: true }
+        }
+      }
+    })
+
+    // Create in-app notification
+    const notification = await createNotification(prisma, {
       userId,
       type: 'LISTING_APPROVED',
       payload: {
         listingTitle,
         listingId,
         approvedAt: new Date().toISOString()
-      }
+      },
+      sendEmail: false // We'll send custom email below
     })
+
+    // Send specific approval email
+    if (user && user.email) {
+      try {
+        const { sendListingApprovedEmail } = await import('./email')
+        const userName = user.profile?.displayName || user.profile?.firstName || 'User'
+        await sendListingApprovedEmail(
+          user.email,
+          userName,
+          listingTitle,
+          listingId
+        )
+        console.log(`✅ Listing approval email sent to ${user.email}`)
+      } catch (emailError) {
+        console.error('❌ Failed to send listing approval email:', emailError)
+      }
+    }
+
+    return notification
   },
 
   async listingRejected(prisma: PrismaClient, userId: string, listingTitle: string, listingId: string, reason: string) {
-    return createNotification(prisma, {
+    // Get user details for email
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { 
+        email: true, 
+        profile: {
+          select: { displayName: true, firstName: true }
+        }
+      }
+    })
+
+    // Create in-app notification
+    const notification = await createNotification(prisma, {
       userId,
       type: 'LISTING_REJECTED',
       payload: {
@@ -191,8 +245,70 @@ export const NotificationHelpers = {
         listingId,
         reason,
         rejectedAt: new Date().toISOString()
+      },
+      sendEmail: false // We'll send custom email below
+    })
+
+    // Send specific rejection email
+    if (user && user.email) {
+      try {
+        const { sendListingRejectedEmail } = await import('./email')
+        const userName = user.profile?.displayName || user.profile?.firstName || 'User'
+        await sendListingRejectedEmail(
+          user.email,
+          userName,
+          listingTitle,
+          reason
+        )
+        console.log(`✅ Listing rejection email sent to ${user.email}`)
+      } catch (emailError) {
+        console.error('❌ Failed to send listing rejection email:', emailError)
+      }
+    }
+
+    return notification
+  },
+
+  async listingDeleted(prisma: PrismaClient, userId: string, listingTitle: string) {
+    // Get user details for email
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { 
+        email: true, 
+        profile: {
+          select: { displayName: true, firstName: true }
+        }
       }
     })
+
+    // Create in-app notification
+    const notification = await createNotification(prisma, {
+      userId,
+      type: 'LISTING_DELETED',
+      payload: {
+        listingTitle,
+        deletedAt: new Date().toISOString()
+      },
+      sendEmail: false // We'll send custom email below
+    })
+
+    // Send specific deletion email
+    if (user && user.email) {
+      try {
+        const { sendListingDeletedEmail } = await import('./email')
+        const userName = user.profile?.displayName || user.profile?.firstName || 'User'
+        await sendListingDeletedEmail(
+          user.email,
+          userName,
+          listingTitle
+        )
+        console.log(`✅ Listing deletion email sent to ${user.email}`)
+      } catch (emailError) {
+        console.error('❌ Failed to send listing deletion email:', emailError)
+      }
+    }
+
+    return notification
   },
 
   async newInquiry(prisma: PrismaClient, userId: string, listingTitle: string, listingId: string, inquirerName: string) {

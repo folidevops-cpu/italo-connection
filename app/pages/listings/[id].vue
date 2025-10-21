@@ -319,14 +319,16 @@ const deleteListing = async () => {
       method: 'DELETE'
     })
 
-    // Redirect to user's listings
-    navigateTo('/listings/my')
+    // Close modal first
+    showDeleteConfirm.value = false
+    
+    // Redirect to user's listings with await
+    await navigateTo('/listings/my', { replace: true })
   } catch (error: any) {
     console.error('Failed to delete listing:', error)
-    alert('Failed to delete listing. Please try again.')
-  } finally {
     deleting.value = false
     showDeleteConfirm.value = false
+    alert(error.data?.statusMessage || 'Failed to delete listing. Please try again.')
   }
 }
 

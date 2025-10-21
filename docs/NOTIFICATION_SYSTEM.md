@@ -51,9 +51,58 @@ The system supports the following notification types:
 ### Notification Channels
 
 Currently supported channels:
-- `IN_APP` - In-app notifications (default)
-- `EMAIL` - Email notifications (optional)
-- `SMS` - SMS notifications (optional)
+- `IN_APP` - In-app notifications (default) ✅
+- `EMAIL` - Email notifications (automatic) ✅
+- `SMS` - SMS notifications (planned)
+
+### Email Notifications
+
+**Overview**: Every notification automatically triggers an email alert to the user. The email uses a generic template that does NOT include sensitive details for security/privacy reasons.
+
+**Features**:
+- 🔔 Generic alert message (no notification details)
+- 🔒 Security-first approach (users must log in to see details)
+- ✨ Professional HTML email template
+- 📱 Mobile-responsive design
+- 🔗 Direct link to `/notifications` page
+- ⚡ Automatic (enabled by default)
+- 🛡️ Graceful error handling (notification still created if email fails)
+
+**Email Template**:
+```
+Subject: 🔔 You have 1 new notification - ItaloConnection
+
+Hello [User Name],
+
+You have received 1 new notification on ItaloConnection.
+
+[Info Box]
+For security and privacy reasons, we don't include notification 
+details in emails. Please log in to your account to view your notifications.
+
+[View Notifications Button]
+
+Quick tip: You can manage your notification preferences and view 
+all notifications by clicking the bell icon 🔔 in your account dashboard.
+```
+
+**Implementation**: When `createNotification()` is called, it automatically:
+1. Creates the notification in the database
+2. Fetches user's email and name
+3. Sends generic email alert via `sendNewNotificationEmail()`
+4. Logs success/failure (email failure doesn't affect notification creation)
+
+**Disable Email for Specific Notification**:
+```typescript
+await createNotification(prisma, {
+  userId: 'user-id',
+  type: 'LISTING_APPROVED',
+  payload: { /* ... */ },
+  sendEmail: false  // Disable email for this notification
+})
+```
+
+**SMTP Configuration**: See `.env` file or `EMAIL_NOTIFICATIONS.md` for setup details.
 
 ## Backend API
 

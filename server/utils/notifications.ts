@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client'
+import { sendNewNotificationEmail } from './email'
 
 export type NotificationType = 
   | 'EMAIL_VERIFIED'
@@ -19,6 +20,7 @@ interface CreateNotificationParams {
   type: NotificationType
   channel?: NotificationChannel
   payload: Record<string, any>
+  sendEmail?: boolean // Optional flag to send email alert
 }
 
 /**
@@ -29,6 +31,7 @@ export const createNotification = async (
   params: CreateNotificationParams
 ): Promise<any> => {
   try {
+    // Create the notification in database
     const notification = await prisma.notification.create({
       data: {
         userId: params.userId,
@@ -39,7 +42,34 @@ export const createNotification = async (
       }
     })
 
-    console.log(`Notification created: ${params.type} for user ${params.userId}`)
+    console.log(`✅ Notification created: ${params.type} for user ${params.userId}`)
+
+    // Send email alert if requested (default: true)
+    if (params.sendEmail !== false) {
+      try {
+        // Fetch user details for email
+        const user = await prisma.user.findUnique({
+          where: { id: params.userId },
+          select: { email: true, name: true }
+        })
+
+        if (user && user.email) {
+          console.log(`📧 Sending email alert to ${user.email}...`)
+          await sendNewNotificationEmail(
+            user.email,
+            user.name || 'User',
+            1
+          )
+          console.log(`✅ Email alert sent successfully`)
+        } else {
+          console.log(`⚠️ No email found for user ${params.userId}`)
+        }
+      } catch (emailError) {
+        // Don't fail notification creation if email fails
+        console.error('❌ Failed to send email alert (notification still created):', emailError)
+      }
+    }
+
     return notification
   } catch (error) {
     console.error('Failed to create notification:', error)

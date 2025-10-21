@@ -470,3 +470,550 @@ Visit ItaloConnection: ${appUrl}
     text,
   })
 }
+
+// Email template for listing approved
+export const sendListingApprovedEmail = async (
+  userEmail: string,
+  userName: string,
+  listingTitle: string,
+  listingId: string
+): Promise<boolean> => {
+  const config = useRuntimeConfig()
+  const appUrl = config.public?.apiBaseUrl || 'http://localhost:3000'
+  const listingUrl = `${appUrl}/listings/${listingId}`
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background-color: #10b981;
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+          border-radius: 5px 5px 0 0;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        .icon {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+        .content {
+          background-color: #f9fafb;
+          padding: 30px;
+          border: 1px solid #e5e7eb;
+          border-top: none;
+          border-radius: 0 0 5px 5px;
+        }
+        .success-box {
+          background-color: #d1fae5;
+          border-left: 4px solid #10b981;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 4px;
+        }
+        .listing-title {
+          font-size: 18px;
+          font-weight: bold;
+          color: #1f2937;
+          margin: 15px 0;
+        }
+        .button {
+          display: inline-block;
+          padding: 14px 32px;
+          background-color: #10b981;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          margin: 20px 0;
+          font-weight: bold;
+          font-size: 16px;
+        }
+        .button:hover {
+          background-color: #059669;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 12px;
+          color: #6b7280;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="icon">✅</div>
+        <h1>Your Listing Has Been Approved!</h1>
+      </div>
+      <div class="content">
+        <p>Hello ${userName},</p>
+        
+        <p>Great news! Your listing has been approved by our moderation team and is now live on ItaloConnection.</p>
+        
+        <div class="success-box">
+          <strong>Approved Listing:</strong>
+          <div class="listing-title">"${listingTitle}"</div>
+        </div>
+        
+        <p><strong>What this means:</strong></p>
+        <ul>
+          <li>✅ Your listing is now visible to all users</li>
+          <li>✅ Users can contact you about this listing</li>
+          <li>✅ Your listing will appear in search results</li>
+        </ul>
+        
+        <p><strong>Next steps:</strong></p>
+        <ul>
+          <li>Share your listing with your network</li>
+          <li>Respond promptly to any inquiries</li>
+          <li>Keep your listing information up to date</li>
+        </ul>
+        
+        <div style="text-align: center;">
+          <a href="${listingUrl}" class="button">
+            View Your Listing
+          </a>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+          <strong>Tip:</strong> Good listings with clear descriptions and quality images typically receive more inquiries!
+        </p>
+        
+        <p>Thank you for being part of ItaloConnection!</p>
+        
+        <p>Best regards,<br>The ItaloConnection Team</p>
+      </div>
+      <div class="footer">
+        <p>This is an automated message from ItaloConnection.</p>
+        <p style="margin-top: 15px;">
+          <a href="${appUrl}" style="color: #10b981; text-decoration: none;">Visit ItaloConnection</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+Listing Approved - ItaloConnection
+
+Hello ${userName},
+
+Great news! Your listing has been approved by our moderation team and is now live on ItaloConnection.
+
+Approved Listing: "${listingTitle}"
+
+What this means:
+✅ Your listing is now visible to all users
+✅ Users can contact you about this listing
+✅ Your listing will appear in search results
+
+Next steps:
+- Share your listing with your network
+- Respond promptly to any inquiries
+- Keep your listing information up to date
+
+View your listing: ${listingUrl}
+
+Tip: Good listings with clear descriptions and quality images typically receive more inquiries!
+
+Thank you for being part of ItaloConnection!
+
+Best regards,
+The ItaloConnection Team
+
+---
+Visit ItaloConnection: ${appUrl}
+  `
+
+  return await sendEmail({
+    to: userEmail,
+    subject: `✅ Your listing "${listingTitle}" has been approved - ItaloConnection`,
+    html,
+    text,
+  })
+}
+
+// Email template for listing rejected
+export const sendListingRejectedEmail = async (
+  userEmail: string,
+  userName: string,
+  listingTitle: string,
+  reason: string
+): Promise<boolean> => {
+  const config = useRuntimeConfig()
+  const appUrl = config.public?.apiBaseUrl || 'http://localhost:3000'
+  const supportEmail = config.adminEmail || config.smtpFromEmail
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background-color: #ef4444;
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+          border-radius: 5px 5px 0 0;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        .icon {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+        .content {
+          background-color: #f9fafb;
+          padding: 30px;
+          border: 1px solid #e5e7eb;
+          border-top: none;
+          border-radius: 0 0 5px 5px;
+        }
+        .rejection-box {
+          background-color: #fee2e2;
+          border-left: 4px solid #ef4444;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 4px;
+        }
+        .listing-title {
+          font-size: 18px;
+          font-weight: bold;
+          color: #1f2937;
+          margin: 15px 0;
+        }
+        .reason {
+          background-color: white;
+          padding: 15px;
+          border-radius: 4px;
+          margin-top: 10px;
+          font-style: italic;
+        }
+        .button {
+          display: inline-block;
+          padding: 14px 32px;
+          background-color: #2563eb;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          margin: 20px 0;
+          font-weight: bold;
+          font-size: 16px;
+        }
+        .button:hover {
+          background-color: #1d4ed8;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 12px;
+          color: #6b7280;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="icon">❌</div>
+        <h1>Listing Not Approved</h1>
+      </div>
+      <div class="content">
+        <p>Hello ${userName},</p>
+        
+        <p>We regret to inform you that your listing was not approved by our moderation team.</p>
+        
+        <div class="rejection-box">
+          <strong>Rejected Listing:</strong>
+          <div class="listing-title">"${listingTitle}"</div>
+          
+          <strong>Reason for rejection:</strong>
+          <div class="reason">${reason}</div>
+        </div>
+        
+        <p><strong>What you can do:</strong></p>
+        <ul>
+          <li>Review our <a href="${appUrl}/guidelines" style="color: #2563eb;">community guidelines</a></li>
+          <li>Make the necessary changes to your listing</li>
+          <li>Resubmit your listing for approval</li>
+        </ul>
+        
+        <p><strong>Common reasons for rejection:</strong></p>
+        <ul>
+          <li>Inappropriate or offensive content</li>
+          <li>Misleading or inaccurate information</li>
+          <li>Poor quality or missing images</li>
+          <li>Incomplete listing details</li>
+          <li>Violation of community guidelines</li>
+        </ul>
+        
+        <div style="text-align: center;">
+          <a href="${appUrl}/listings/my" class="button">
+            View My Listings
+          </a>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+          <strong>Need help?</strong> If you have questions about this decision or need guidance on how to improve your listing, 
+          please contact our support team at <a href="mailto:${supportEmail}" style="color: #2563eb;">${supportEmail}</a>
+        </p>
+        
+        <p>We appreciate your understanding and look forward to seeing your improved listing!</p>
+        
+        <p>Best regards,<br>The ItaloConnection Team</p>
+      </div>
+      <div class="footer">
+        <p>This is an automated message from ItaloConnection.</p>
+        <p style="margin-top: 15px;">
+          <a href="${appUrl}" style="color: #ef4444; text-decoration: none;">Visit ItaloConnection</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+Listing Not Approved - ItaloConnection
+
+Hello ${userName},
+
+We regret to inform you that your listing was not approved by our moderation team.
+
+Rejected Listing: "${listingTitle}"
+
+Reason for rejection:
+${reason}
+
+What you can do:
+- Review our community guidelines
+- Make the necessary changes to your listing
+- Resubmit your listing for approval
+
+Common reasons for rejection:
+- Inappropriate or offensive content
+- Misleading or inaccurate information
+- Poor quality or missing images
+- Incomplete listing details
+- Violation of community guidelines
+
+View your listings: ${appUrl}/listings/my
+
+Need help? If you have questions about this decision or need guidance on how to improve your listing, 
+please contact our support team at ${supportEmail}
+
+We appreciate your understanding and look forward to seeing your improved listing!
+
+Best regards,
+The ItaloConnection Team
+
+---
+Visit ItaloConnection: ${appUrl}
+  `
+
+  return await sendEmail({
+    to: userEmail,
+    subject: `❌ Your listing "${listingTitle}" was not approved - ItaloConnection`,
+    html,
+    text,
+  })
+}
+
+// Email template for listing deleted
+export const sendListingDeletedEmail = async (
+  userEmail: string,
+  userName: string,
+  listingTitle: string
+): Promise<boolean> => {
+  const config = useRuntimeConfig()
+  const appUrl = config.public?.apiBaseUrl || 'http://localhost:3000'
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background-color: #6b7280;
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+          border-radius: 5px 5px 0 0;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        .icon {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+        .content {
+          background-color: #f9fafb;
+          padding: 30px;
+          border: 1px solid #e5e7eb;
+          border-top: none;
+          border-radius: 0 0 5px 5px;
+        }
+        .info-box {
+          background-color: #e5e7eb;
+          border-left: 4px solid #6b7280;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 4px;
+        }
+        .listing-title {
+          font-size: 18px;
+          font-weight: bold;
+          color: #1f2937;
+          margin: 15px 0;
+        }
+        .button {
+          display: inline-block;
+          padding: 14px 32px;
+          background-color: #2563eb;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          margin: 20px 0;
+          font-weight: bold;
+          font-size: 16px;
+        }
+        .button:hover {
+          background-color: #1d4ed8;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 12px;
+          color: #6b7280;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="icon">🗑️</div>
+        <h1>Listing Deleted</h1>
+      </div>
+      <div class="content">
+        <p>Hello ${userName},</p>
+        
+        <p>This email confirms that your listing has been successfully deleted from ItaloConnection.</p>
+        
+        <div class="info-box">
+          <strong>Deleted Listing:</strong>
+          <div class="listing-title">"${listingTitle}"</div>
+        </div>
+        
+        <p><strong>What was deleted:</strong></p>
+        <ul>
+          <li>The listing details and description</li>
+          <li>All images and media files</li>
+          <li>Any associated inquiries or messages</li>
+        </ul>
+        
+        <p><strong>Important notes:</strong></p>
+        <ul>
+          <li>This action is permanent and cannot be undone</li>
+          <li>The listing is no longer visible to other users</li>
+          <li>You can create a new listing at any time</li>
+        </ul>
+        
+        <div style="text-align: center;">
+          <a href="${appUrl}/listings/create" class="button">
+            Create New Listing
+          </a>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+          Thank you for using ItaloConnection. We hope to see you list again soon!
+        </p>
+        
+        <p>Best regards,<br>The ItaloConnection Team</p>
+      </div>
+      <div class="footer">
+        <p>This is an automated message from ItaloConnection.</p>
+        <p style="margin-top: 15px;">
+          <a href="${appUrl}" style="color: #6b7280; text-decoration: none;">Visit ItaloConnection</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+Listing Deleted - ItaloConnection
+
+Hello ${userName},
+
+This email confirms that your listing has been successfully deleted from ItaloConnection.
+
+Deleted Listing: "${listingTitle}"
+
+What was deleted:
+- The listing details and description
+- All images and media files
+- Any associated inquiries or messages
+
+Important notes:
+- This action is permanent and cannot be undone
+- The listing is no longer visible to other users
+- You can create a new listing at any time
+
+Create a new listing: ${appUrl}/listings/create
+
+Thank you for using ItaloConnection. We hope to see you list again soon!
+
+Best regards,
+The ItaloConnection Team
+
+---
+Visit ItaloConnection: ${appUrl}
+  `
+
+  return await sendEmail({
+    to: userEmail,
+    subject: `🗑️ Your listing "${listingTitle}" has been deleted - ItaloConnection`,
+    html,
+    text,
+  })
+}

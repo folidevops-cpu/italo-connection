@@ -78,10 +78,26 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // Store listing info before deletion for notification
+    const listingTitle = listing.title
+    const ownerId = listing.ownerId
+
     // Delete listing (media records will be cascade deleted due to schema)
     await prisma.listing.delete({
       where: { id: listingId }
     })
+
+    // Send notification and email to listing owner
+    try {
+      await NotificationHelpers.listingDeleted(
+        prisma,
+        ownerId,
+        listingTitle
+      )
+    } catch (notificationError) {
+      console.error('Failed to send deletion notification:', notificationError)
+      // Don't fail the deletion if notification fails
+    }
 
     await prisma.$disconnect()
 

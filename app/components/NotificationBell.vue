@@ -150,13 +150,22 @@ const isOpen = ref(false)
 
 // Load notifications when component mounts
 onMounted(async () => {
-  await fetchNotifications({ limit: 10 })
+  console.log('🔔 NotificationBell: Component mounted, fetching initial notifications...')
+  try {
+    await fetchNotifications({ limit: 10 })
+    console.log('🔔 NotificationBell: Initial fetch complete. Unread count:', unreadCount.value)
+    console.log('🔔 NotificationBell: Notifications:', notifications.value.length)
+  } catch (err) {
+    console.error('🔔 NotificationBell: Error fetching initial notifications:', err)
+  }
   
   // Start auto-refresh for unread count
+  console.log('🔔 NotificationBell: Starting auto-refresh (60s interval)')
   const stopAutoRefresh = startAutoRefresh(60000) // Refresh every minute
   
   // Cleanup on unmount
   onUnmounted(() => {
+    console.log('🔔 NotificationBell: Component unmounting, stopping auto-refresh')
     stopAutoRefresh()
   })
 })
@@ -164,10 +173,17 @@ onMounted(async () => {
 // Toggle dropdown
 const toggleDropdown = async () => {
   isOpen.value = !isOpen.value
+  console.log('🔔 NotificationBell: Dropdown toggled:', isOpen.value ? 'open' : 'closed')
   
   if (isOpen.value) {
     // Reload notifications when opening
-    await fetchNotifications({ limit: 10 })
+    console.log('🔔 NotificationBell: Reloading notifications...')
+    try {
+      await fetchNotifications({ limit: 10 })
+      console.log('🔔 NotificationBell: Reload complete. Count:', notifications.value.length)
+    } catch (err) {
+      console.error('🔔 NotificationBell: Error reloading notifications:', err)
+    }
   }
 }
 

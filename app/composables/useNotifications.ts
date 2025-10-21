@@ -33,6 +33,7 @@ export const useNotifications = () => {
     offset?: number
     unreadOnly?: boolean
   }) => {
+    console.log('📡 useNotifications: Fetching notifications with params:', params)
     loading.value = true
     error.value = null
 
@@ -42,8 +43,15 @@ export const useNotifications = () => {
       if (params?.offset) query.offset = params.offset
       if (params?.unreadOnly) query.unreadOnly = 'true'
 
+      console.log('📡 useNotifications: Making API request to /api/notifications')
       const response = await $fetch<NotificationsResponse>('/api/notifications', {
         query
+      })
+
+      console.log('📡 useNotifications: API response received:', {
+        notificationCount: response.notifications.length,
+        unreadCount: response.unreadCount,
+        total: response.pagination.total
       })
 
       notifications.value = response.notifications
@@ -51,6 +59,7 @@ export const useNotifications = () => {
 
       return response
     } catch (err: any) {
+      console.error('📡 useNotifications: Error fetching notifications:', err)
       error.value = err.message || 'Failed to fetch notifications'
       throw err
     } finally {
@@ -61,11 +70,13 @@ export const useNotifications = () => {
   // Fetch unread count only
   const fetchUnreadCount = async () => {
     try {
+      console.log('📡 useNotifications: Fetching unread count...')
       const response = await $fetch<{ unreadCount: number }>('/api/notifications/unread-count')
+      console.log('📡 useNotifications: Unread count:', response.unreadCount)
       unreadCount.value = response.unreadCount
       return response.unreadCount
     } catch (err: any) {
-      console.error('Failed to fetch unread count:', err)
+      console.error('📡 useNotifications: Failed to fetch unread count:', err)
       return unreadCount.value
     }
   }

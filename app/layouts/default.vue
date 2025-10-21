@@ -3,6 +3,9 @@
     <!-- Navigation Bar -->
     <UiNavBar />
     
+    <!-- Announcement Banner -->
+    <AnnouncementBanner />
+    
     <!-- Main content area -->
     <main>
       <slot />

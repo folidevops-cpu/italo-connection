@@ -151,7 +151,7 @@ const error = ref('')
 // Check if already logged in
 const { loggedIn } = useUserSession()
 if (loggedIn.value) {
-  await navigateTo('/dashboard')
+  await navigateTo('/')
 }
 
 // ✅ Use enhanced login with proper session state management
@@ -182,7 +182,7 @@ if (loggedIn.value) {
           await new Promise(resolve => setTimeout(resolve, 200))
           
           // Navigate to target page
-          await navigateTo( '/dashboard')
+          await navigateTo( '/')
         } else {
           error.value = response.message || 'Login failed'
         }

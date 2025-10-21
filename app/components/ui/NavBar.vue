@@ -263,6 +263,10 @@ const handleLogout = async () => {
   try {
     await $fetch('/api/auth/logout', { method: 'POST' })
     
+
+    // Clear dismissed announcement from session storage
+    sessionStorage.removeItem('dismissedAnnouncementId')
+    
     // Clear the user session
     const { clear } = useUserSession()
     await clear()

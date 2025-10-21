@@ -71,21 +71,13 @@ export default defineEventHandler(async (event) => {
     })
 
     // Create notification for listing owner
-    await prisma.notification.create({
-      data: {
-        userId: listing.ownerId,
-        type: 'LISTING_REJECTED',
-        channel: 'IN_APP',
-        payload: {
-          listingId,
-          listingTitle: listing.title,
-          reason: reason || 'No reason provided',
-          message: reason 
-            ? `Your listing has been rejected. Reason: ${reason}`
-            : 'Your listing has been rejected'
-        }
-      }
-    })
+    await NotificationHelpers.listingRejected(
+      prisma,
+      listing.ownerId,
+      listing.title,
+      listingId,
+      reason || 'No reason provided'
+    )
 
     await prisma.$disconnect()
 

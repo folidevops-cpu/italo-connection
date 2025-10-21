@@ -28,27 +28,60 @@ export default defineEventHandler(async (event) => {
       // 3. Mark phone as verified in database
       // 4. Invalidate the verification code
 
-      // Mock verification logic
-      const expectedCode = '654321' // In production, this would come from database/cache
-      
-      if (body.code !== expectedCode) {
+      const { PrismaClient } = await import('@prisma/client')
+      const prisma = new PrismaClient()
+
+      const userData = session.user as any
+
+      // Find verification token
+      const verificationToken = await prisma.verificationToken.findFirst({
+        where: {
+          userId: userData.id,
+          type: 'PHONE',
+          token: body.code,
+          expiresAt: {
+            gt: new Date()
+          },
+          usedAt: null
+        }
+      })
+
+      if (!verificationToken) {
+        await prisma.$disconnect()
         throw createError({
           statusCode: 400,
-          statusMessage: 'Invalid verification code'
+          statusMessage: 'Invalid or expired verification code'
         })
       }
 
-      // Update user session to mark phone as verified
+      // Mark token as used
+      await prisma.verificationToken.update({
+        where: { id: verificationToken.id },
+        data: { usedAt: new Date() }
+      })
+
+      // Update user phone verification status
+      const updatedUser = await prisma.user.update({
+        where: { id: userData.id },
+        data: { phoneVerified: true },
+        include: { profile: true }
+      })
+
+      // Create notification for successful verification
+      await NotificationHelpers.phoneVerified(prisma, updatedUser.id)
+
+      await prisma.$disconnect()
+
+      // Update session
       await setUserSession(event, {
         ...session,
         user: {
           ...session.user,
-          phoneVerified: true,
-          phoneVerifiedAt: new Date().toISOString()
+          phoneVerified: true
         }
       })
 
-      console.log(`Phone verified for user`)
+      console.log(`Phone verified for user ${updatedUser.email}`)
 
       return {
         success: true,

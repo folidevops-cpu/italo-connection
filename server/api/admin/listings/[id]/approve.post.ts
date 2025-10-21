@@ -66,19 +66,13 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    // TODO: Create notification for listing owner
-    await prisma.notification.create({
-      data: {
-        userId: listing.ownerId,
-        type: 'LISTING_APPROVED',
-        channel: 'IN_APP',
-        payload: {
-          listingId,
-          listingTitle: listing.title,
-          message: 'Your listing has been approved and is now visible to others'
-        }
-      }
-    })
+    // Create notification for listing owner
+    await NotificationHelpers.listingApproved(
+      prisma,
+      listing.ownerId,
+      listing.title,
+      listingId
+    )
 
     await prisma.$disconnect()
 

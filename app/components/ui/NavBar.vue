@@ -48,37 +48,8 @@
               Admin
             </NuxtLink>
             
-            <!-- Notifications bell -->
-            <div class="relative">
-              <button 
-                @click="toggleNotifications"
-                class="text-gray-700 hover:text-gray-900 p-2 rounded-full"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span 
-                  v-if="unreadCount > 0" 
-                  class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                >
-                  {{ unreadCount }}
-                </span>
-              </button>
-              
-              <!-- Notifications dropdown -->
-              <div 
-                v-if="showNotifications" 
-                class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-50 border"
-              >
-                <div class="px-4 py-2 text-sm text-gray-700 border-b">
-                  <strong>Notifications</strong>
-                </div>
-                <!-- Notification items will be handled by a separate component -->
-                <div class="px-4 py-2 text-sm text-gray-500">
-                  No new notifications
-                </div>
-              </div>
-            </div>
+            <!-- Notification Bell Component -->
+            <NotificationBell />
             
             <!-- User menu -->
             <div class="relative">
@@ -207,6 +178,12 @@
               Profile
             </NuxtLink>
             <NuxtLink 
+              to="/notifications" 
+              class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
+            >
+              Notifications
+            </NuxtLink>
+            <NuxtLink 
               v-if="isAdmin"
               to="/admin" 
               class="block text-purple-600 hover:text-purple-900 px-3 py-2 rounded-md text-base font-medium"
@@ -251,10 +228,8 @@ onMounted(async () => {
 })
 
 // Reactive state for UI
-const showNotifications = ref(false)
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
-const unreadCount = ref(0) // Will be populated from notifications API later
 
 // Computed user avatar
 const userAvatar = computed(() => {
@@ -271,20 +246,13 @@ const isAdmin = computed(() => {
 })
 
 // UI toggle functions
-const toggleNotifications = () => {
-  showNotifications.value = !showNotifications.value
-  showUserMenu.value = false
-}
-
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
-  showNotifications.value = false
 }
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
   showUserMenu.value = false
-  showNotifications.value = false
 }
 
 // Logout handler using standard nuxt-auth-utils
@@ -311,7 +279,6 @@ onMounted(() => {
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement
     if (!target.closest('.relative')) {
-      showNotifications.value = false
       showUserMenu.value = false
     }
   })

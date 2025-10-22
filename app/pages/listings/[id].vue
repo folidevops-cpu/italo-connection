@@ -135,7 +135,39 @@
             <!-- Seller Info -->
             <div v-if="listing.owner">
               <h3 class="text-sm font-medium text-gray-900 mb-3">Listed by</h3>
-              <div class="flex items-center">
+              <NuxtLink 
+                v-if="listing.owner.profile?.displayName"
+                :to="`/users/${listing.owner.profile.displayName}`"
+                class="flex items-center hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+              >
+                <div 
+                  v-if="listing.owner.profile?.avatarUrl"
+                  class="h-12 w-12 rounded-full overflow-hidden mr-3"
+                >
+                  <img
+                    :src="listing.owner.profile.avatarUrl"
+                    :alt="listing.owner.profile?.displayName || 'User'"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+                <div
+                  v-else
+                  class="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center mr-3"
+                >
+                  <span class="text-white text-lg font-medium">
+                    {{ (listing.owner.profile?.displayName || listing.owner.email).charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                    {{ listing.owner.profile?.displayName || 'User' }}
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    Member since {{ formatDate(listing.owner.createdAt) }}
+                  </p>
+                </div>
+              </NuxtLink>
+              <div v-else class="flex items-center">
                 <div 
                   v-if="listing.owner.profile?.avatarUrl"
                   class="h-12 w-12 rounded-full overflow-hidden mr-3"

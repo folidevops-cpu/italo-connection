@@ -1,7 +1,10 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="p-4 md:p-6">
     <div class="mb-6 flex justify-between items-center">
-      <h1 class="text-3xl font-bold text-gray-900">Manage Announcements</h1>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Manage Announcements</h1>
+        <p class="mt-1 text-gray-600">Create and manage site-wide announcements</p>
+      </div>
       <button
         @click="showCreateModal = true"
         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
@@ -202,8 +205,8 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'auth',
-  layout: 'default'
+  middleware: 'admin',
+  layout: 'admin'
 })
 
 const announcements = ref<any[]>([])

@@ -22,6 +22,8 @@ model User {
   notifications      Notification[]
   profile            Profile?
   verificationTokens VerificationToken[]
+  reportsSubmitted   UserReport[]        @relation("ReporterReports")
+  reportsReceived    UserReport[]        @relation("ReportedUserReports")
 
   @@map("users")
 }
@@ -151,4 +153,23 @@ model Announcement {
   updatedAt DateTime @updatedAt
 
   @@map("announcements")
+}
+
+model UserReport {
+  id           String   @id @default(cuid())
+  reporterId   String?  // Null if reported by anonymous/non-logged-in user
+  reportedUserId String
+  reason       String   // harassment, spam, inappropriate, fraud, other
+  description  String
+  status       String   @default("PENDING") // PENDING, REVIEWED, RESOLVED, DISMISSED
+  adminNote    String?  // Admin notes about the report
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  reporter     User?    @relation("ReporterReports", fields: [reporterId], references: [id], onDelete: SetNull)
+  reportedUser User     @relation("ReportedUserReports", fields: [reportedUserId], references: [id], onDelete: Cascade)
+
+  @@map("user_reports")
 }

@@ -1,231 +1,316 @@
 <template>
-  <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+  <div class="p-4 md:p-6">
     <!-- Page Header -->
-    <div class="flex justify-between items-center mb-8">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Listings Moderation</h1>
-        <p class="mt-2 text-gray-600">
-          Review and moderate user listings
-        </p>
-      </div>
-      <NuxtLink 
-        to="/admin" 
-        class="text-blue-600 hover:text-blue-700 font-medium"
-      >
-        ← Back to Dashboard
-      </NuxtLink>
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Listings</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        Track and manage all listings to boost your platform.
+      </p>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white p-6 rounded-lg shadow mb-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-          <select 
-            v-model="filters.status" 
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @change="applyFilters"
-          >
-            <option value="">All Statuses</option>
-            <option value="PENDING">Pending Review</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
+    <!-- Main Content Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <!-- Filters and Actions Bar -->
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <!-- Search -->
+          <div class="relative flex-1 max-w-md">
+            <input 
+              v-model="filters.search" 
+              type="text" 
+              placeholder="Search listings..."
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              @input="debouncedSearch"
+            >
+            <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <!-- Filters -->
+          <div class="flex gap-3">
+            <select 
+              v-model="filters.status" 
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              @change="applyFilters"
+            >
+              <option value="">All Status</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+            
+            <select 
+              v-model="filters.type" 
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              @change="applyFilters"
+            >
+              <option value="">All Types</option>
+              <option value="item">Items</option>
+              <option value="room_single">Single Room</option>
+              <option value="room_shared">Shared Room</option>
+            </select>
+
+            <button 
+              @click="resetFilters"
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              title="Reset Filters"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-          <select 
-            v-model="filters.type" 
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @change="applyFilters"
-          >
-            <option value="">All Types</option>
-            <option value="SALE">For Sale</option>
-            <option value="SINGLE_ROOM">Single Room</option>
-            <option value="SHARED_ROOM">Shared Room</option>
-          </select>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <!-- Loading State -->
+        <div v-if="pending" class="text-center py-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600 dark:text-gray-400">Loading listings...</p>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-          <input 
-            v-model="filters.search" 
-            type="text" 
-            placeholder="Title or owner..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @input="debouncedSearch"
-          >
-        </div>
-        <div class="flex items-end">
-          <button 
-            @click="resetFilters"
-            class="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md font-medium"
-          >
-            Reset Filters
+
+        <!-- Error State -->
+        <div v-else-if="error" class="text-center py-12">
+          <p class="text-red-600 dark:text-red-400">Failed to load listings</p>
+          <button @click="refresh" class="mt-4 text-blue-600 hover:text-blue-700 dark:text-blue-400">
+            Try again
           </button>
         </div>
-      </div>
-    </div>
 
-    <!-- Listings Grid -->
-    <div v-if="pending" class="text-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-      <p class="mt-4 text-gray-600">Loading listings...</p>
-    </div>
+        <!-- Empty State -->
+        <div v-else-if="!listings || listings.length === 0" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No listings found</h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Try adjusting your filters</p>
+        </div>
 
-    <div v-else-if="error" class="text-center py-12 text-red-600">
-      <p>Failed to load listings</p>
-      <button @click="refresh" class="mt-4 text-blue-600 hover:text-blue-700">
-        Try again
-      </button>
-    </div>
-
-    <div v-else-if="!listings || listings.length === 0" class="bg-white shadow rounded-lg p-12 text-center">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">No listings found</h3>
-      <p class="mt-1 text-sm text-gray-500">Try adjusting your filters</p>
-    </div>
-
-    <div v-else class="grid grid-cols-1 gap-6">
-      <div 
-        v-for="listing in listings" 
-        :key="listing.id"
-        class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
-      >
-        <div class="md:flex">
-          <!-- Image -->
-          <div class="md:w-1/3">
-            <img 
-              v-if="listing.media && listing.media.length > 0"
-              :src="listing.media[0].url" 
-              :alt="listing.title"
-              class="w-full h-64 object-cover"
+        <!-- Table Content -->
+        <table v-else class="w-full">
+          <thead class="bg-gray-50 dark:bg-gray-900">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Image
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Listing
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Type
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Owner
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Price
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Status
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Posted
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tr 
+              v-for="listing in listings" 
+              :key="listing.id"
+              class="hover:bg-gray-50 dark:hover:bg-gray-700"
             >
-            <div v-else class="w-full h-64 bg-gray-200 flex items-center justify-center">
-              <svg class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- Content -->
-          <div class="md:w-2/3 p-6">
-            <div class="flex justify-between items-start mb-4">
-              <div class="flex-1">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span 
-                    class="px-2 py-1 text-xs font-semibold rounded-full"
-                    :class="{
-                      'bg-yellow-100 text-yellow-800': listing.status === 'PENDING',
-                      'bg-green-100 text-green-800': listing.status === 'APPROVED',
-                      'bg-red-100 text-red-800': listing.status === 'REJECTED'
-                    }"
+              <!-- Image -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="h-12 w-16 rounded overflow-hidden bg-gray-200 dark:bg-gray-700">
+                  <img 
+                    v-if="listing.media && listing.media.length > 0"
+                    :src="listing.media[0].url" 
+                    :alt="listing.title"
+                    class="h-full w-full object-cover"
                   >
-                    {{ listing.status }}
-                  </span>
-                  <span class="px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-800 rounded-full">
-                    {{ formatType(listing.type) }}
-                  </span>
+                  <div v-else class="h-full w-full flex items-center justify-center">
+                    <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ listing.title }}</h3>
-                <p class="text-gray-600 mb-2 line-clamp-2">{{ listing.description }}</p>
-                <p class="text-2xl font-bold text-blue-600">€{{ listing.price }}</p>
-              </div>
-            </div>
+              </td>
 
-            <!-- Owner Info -->
-            <div class="border-t pt-4 mb-4">
-              <p class="text-sm text-gray-500">
-                <span class="font-medium">Owner:</span> {{ listing.owner?.profile?.displayName || listing.owner?.email || 'Unknown' }}
-              </p>
-              <p class="text-sm text-gray-500">
-                <span class="font-medium">Posted:</span> {{ formatDate(listing.createdAt) }}
-              </p>
-              <p class="text-sm text-gray-500">
-                <span class="font-medium">Images:</span> {{ listing.media?.length || 0 }}
-              </p>
-            </div>
+              <!-- Listing Title -->
+              <td class="px-6 py-4">
+                <div class="text-sm font-medium text-gray-900 dark:text-white max-w-xs truncate">
+                  {{ listing.title }}
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
+                  <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {{ listing.media?.length || 0 }} images
+                </div>
+              </td>
 
-            <!-- Actions -->
-            <div class="flex space-x-3">
-              <NuxtLink
-                :to="`/listings/${listing.id}`"
-                target="_blank"
-                class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md font-medium text-center"
-              >
-                View Details
-              </NuxtLink>
-              <button
-                v-if="listing.status !== 'APPROVED'"
-                @click="approveListing(listing.id)"
-                :disabled="processing === listing.id"
-                class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium disabled:opacity-50"
-              >
-                {{ processing === listing.id ? 'Approving...' : 'Approve' }}
-              </button>
-              <button
-                v-if="listing.status !== 'REJECTED'"
-                @click="rejectListing(listing.id)"
-                :disabled="processing === listing.id"
-                class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md font-medium disabled:opacity-50"
-              >
-                {{ processing === listing.id ? 'Rejecting...' : 'Reject' }}
-              </button>
-              <button
-                @click="deleteListing(listing.id)"
-                :disabled="deleting === listing.id"
-                class="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-md font-medium disabled:opacity-50"
-              >
-                {{ deleting === listing.id ? 'Deleting...' : 'Delete' }}
-              </button>
-            </div>
+              <!-- Type -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                  {{ formatType(listing.type) }}
+                </span>
+              </td>
+
+              <!-- Owner -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-8 w-8 rounded-full overflow-hidden bg-blue-600 flex-shrink-0">
+                    <img 
+                      v-if="listing.owner?.profile?.avatarUrl"
+                      :src="listing.owner.profile.avatarUrl"
+                      :alt="listing.owner.profile?.displayName || 'User'"
+                      class="h-full w-full object-cover"
+                    >
+                    <span v-else class="h-full w-full flex items-center justify-center text-white text-xs font-medium">
+                      {{ (listing.owner?.profile?.displayName || listing.owner?.email || 'U').charAt(0).toUpperCase() }}
+                    </span>
+                  </div>
+                  <div class="ml-2">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ listing.owner?.profile?.displayName || 'Unknown' }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Price -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white">
+                  €{{ listing.price }}
+                </div>
+                <div v-if="listing.type.includes('room')" class="text-xs text-gray-500 dark:text-gray-400">
+                  /month
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span 
+                  class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full"
+                  :class="{
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': listing.status === 'PENDING',
+                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': listing.status === 'APPROVED',
+                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': listing.status === 'REJECTED'
+                  }"
+                >
+                  {{ listing.status }}
+                </span>
+              </td>
+
+              <!-- Posted Date -->
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {{ formatDate(listing.createdAt) }}
+              </td>
+
+              <!-- Actions -->
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex items-center justify-end gap-2">
+                  <NuxtLink
+                    :to="`/listings/${listing.id}`"
+                    target="_blank"
+                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                    title="View"
+                  >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </NuxtLink>
+                  
+                  <button
+                    v-if="listing.status !== 'APPROVED'"
+                    @click="approveListing(listing.id)"
+                    :disabled="processing === listing.id"
+                    class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 disabled:opacity-50"
+                    title="Approve"
+                  >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+
+                  <button
+                    v-if="listing.status !== 'REJECTED'"
+                    @click="rejectListing(listing.id)"
+                    :disabled="processing === listing.id"
+                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                    title="Reject"
+                  >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+
+                  <button
+                    @click="deleteListing(listing.id)"
+                    :disabled="deleting === listing.id"
+                    class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 disabled:opacity-50"
+                    title="Delete"
+                  >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="listings && listings.length > 0" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-gray-700 dark:text-gray-300">
+            Showing <span class="font-medium">{{ ((currentPage - 1) * pageSize) + 1 }}</span> to 
+            <span class="font-medium">{{ Math.min(currentPage * pageSize, ((currentPage - 1) * pageSize) + listings.length) }}</span>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div v-if="listings && listings.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow">
-      <div class="flex-1 flex justify-between sm:hidden">
-        <button
-          @click="previousPage"
-          :disabled="currentPage === 1"
-          class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <button
-          @click="nextPage"
-          :disabled="!hasMore"
-          class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
-      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-        <div>
-          <p class="text-sm text-gray-700">
-            Showing page <span class="font-medium">{{ currentPage }}</span>
-          </p>
-        </div>
-        <div>
-          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+          <div class="flex gap-2">
             <button
               @click="previousPage"
               :disabled="currentPage === 1"
-              class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
             >
-              Previous
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
+            
+            <div class="flex items-center gap-1">
+              <button
+                v-for="page in visiblePages"
+                :key="page"
+                @click="goToPage(page)"
+                class="px-3 py-1 border rounded"
+                :class="page === currentPage 
+                  ? 'bg-blue-600 text-white border-blue-600' 
+                  : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'"
+              >
+                {{ page }}
+              </button>
+            </div>
+
             <button
               @click="nextPage"
               :disabled="!hasMore"
-              class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
             >
-              Next
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
             </button>
-          </nav>
+          </div>
         </div>
       </div>
     </div>
@@ -235,7 +320,8 @@
 <script setup lang="ts">
 // Enforce admin access
 definePageMeta({
-  middleware: 'admin'
+  middleware: 'admin',
+  layout: 'admin'
 })
 
 // Set page meta
@@ -319,6 +405,30 @@ const nextPage = () => {
   }
 }
 
+const goToPage = (page: number) => {
+  currentPage.value = page
+}
+
+// Calculate visible page numbers for pagination
+const visiblePages = computed(() => {
+  const pages = []
+  const maxVisible = 3
+  
+  if (currentPage.value <= 2) {
+    for (let i = 1; i <= Math.min(maxVisible, currentPage.value + 1); i++) {
+      pages.push(i)
+    }
+  } else {
+    pages.push(currentPage.value - 1)
+    pages.push(currentPage.value)
+    if (hasMore.value) {
+      pages.push(currentPage.value + 1)
+    }
+  }
+  
+  return pages
+})
+
 // Watch listings data to update hasMore
 watch(listings, (newListings) => {
   hasMore.value = newListings && newListings.length === pageSize.value
@@ -334,7 +444,12 @@ const formatDate = (date: string) => {
 }
 
 const formatType = (type: string) => {
-  return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+  const typeMap: Record<string, string> = {
+    'item': 'Item',
+    'room_single': 'Single Room',
+    'room_shared': 'Shared Room'
+  }
+  return typeMap[type] || type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
 // Moderation actions

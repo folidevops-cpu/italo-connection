@@ -1,15 +1,7 @@
 <template>
-  <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-    <!-- Page Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-      <p class="mt-2 text-gray-600">
-        Manage users, listings, and platform operations
-      </p>
-    </div>
-
+  <div class="p-4 md:p-6">
     <!-- Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
       <!-- Total Users -->
       <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="p-5">
@@ -200,7 +192,8 @@
 <script setup lang="ts">
 // Enforce admin access
 definePageMeta({
-  middleware: 'admin'
+  middleware: 'admin',
+  layout: 'admin'
 })
 
 // Set page meta

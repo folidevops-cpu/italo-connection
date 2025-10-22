@@ -1,12 +1,10 @@
 <template>
-  <div>
-    <NuxtLayout name="admin">
-      <div class="p-4 md:p-6">
-        <!-- Header -->
-        <div class="mb-6">
-          <h1 class="text-2xl font-bold text-gray-900">User Reports</h1>
-          <p class="text-gray-600 mt-1">Review and manage user reports</p>
-        </div>
+  <div class="p-4 md:p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">User Reports</h1>
+      <p class="text-gray-600 mt-1">Review and manage user reports</p>
+    </div>
 
         <!-- Filters -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
@@ -272,15 +270,13 @@
             </div>
           </div>
         </Teleport>
-      </div>
-    </NuxtLayout>
   </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
   middleware: 'admin',
-  layout: false
+  layout: 'admin'
 })
 
 const reports = ref<any[]>([])

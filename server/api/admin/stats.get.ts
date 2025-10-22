@@ -40,13 +40,21 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    // Get pending reports count
+    const pendingReports = await prisma.userReport.count({
+      where: {
+        status: 'PENDING'
+      }
+    })
+
     await prisma.$disconnect()
 
     return {
       totalUsers,
       totalListings,
       pendingListings,
-      unverifiedUsers
+      unverifiedUsers,
+      pendingReports
     }
   } catch (error: any) {
     console.error('Failed to fetch admin stats:', error)

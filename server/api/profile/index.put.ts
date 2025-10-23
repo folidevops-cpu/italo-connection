@@ -50,6 +50,31 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Invalid marital status'
       })
     }
+
+    // Check if displayName is unique (if provided and different from current)
+    if (displayName) {
+      const currentProfile = await prisma.profile.findUnique({
+        where: { userId: userData.id },
+        select: { displayName: true }
+      })
+
+      // Only check if the displayName is different from current one
+      if (displayName !== currentProfile?.displayName) {
+        const existingDisplayName = await prisma.profile.findFirst({
+          where: {
+            displayName: displayName,
+            userId: { not: userData.id }
+          }
+        })
+
+        if (existingDisplayName) {
+          throw createError({
+            statusCode: 409,
+            statusMessage: 'This display name is already taken'
+          })
+        }
+      }
+    }
     
     // Validate social media URLs if provided
     if (facebookUrl && !isValidUrl(facebookUrl)) {
@@ -143,6 +168,18 @@ export default defineEventHandler(async (event) => {
     
     if (error.statusCode) {
       throw error
+    }
+    
+    // Check for Prisma unique constraint violations
+    if (error.code === 'P2002') {
+      const target = error.meta?.target?.[0]
+      
+      if (target === 'displayName') {
+        throw createError({
+          statusCode: 409,
+          statusMessage: 'This display name is already taken'
+        })
+      }
     }
     
     throw createError({

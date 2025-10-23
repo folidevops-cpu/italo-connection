@@ -34,15 +34,17 @@
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Verification</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
           <select 
-            v-model="filters.verified" 
+            v-model="filters.status" 
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             @change="applyFilters"
           >
             <option value="">All Users</option>
-            <option value="true">Verified</option>
-            <option value="false">Unverified</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="verified">Verified</option>
+            <option value="unverified">Unverified</option>
           </select>
         </div>
         <div class="flex items-end">
@@ -134,13 +136,21 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center space-x-2">
                 <span 
+                  v-if="user.suspended"
+                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                  :title="user.suspensionReason"
+                >
+                  🚫 Suspended
+                </span>
+                <span 
+                  v-else
                   class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                   :class="{
                     'bg-green-100 text-green-800': user.emailVerified,
-                    'bg-red-100 text-red-800': !user.emailVerified
+                    'bg-yellow-100 text-yellow-800': !user.emailVerified
                   }"
                 >
-                  {{ user.emailVerified ? '✓ Verified' : '✗ Unverified' }}
+                  {{ user.emailVerified ? '✓ Verified' : '⚠ Unverified' }}
                 </span>
               </div>
             </td>
@@ -149,7 +159,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
               <button
-                v-if="!user.emailVerified"
+                v-if="!user.emailVerified && !user.suspended"
                 @click="verifyUser(user.id)"
                 class="text-green-600 hover:text-green-900"
                 :disabled="verifying === user.id"
@@ -157,15 +167,23 @@
                 {{ verifying === user.id ? 'Verifying...' : 'Verify' }}
               </button>
               <button
-                v-if="user.emailVerified && user.id !== currentUserId"
-                @click="unverifyUser(user.id)"
+                v-if="!user.suspended && user.id !== currentUserId && user.role !== 'ADMIN'"
+                @click="suspendUser(user.id)"
                 class="text-orange-600 hover:text-orange-900"
-                :disabled="unverifying === user.id"
+                :disabled="suspending === user.id"
               >
-                {{ unverifying === user.id ? 'Suspending...' : 'Suspend' }}
+                {{ suspending === user.id ? 'Suspending...' : 'Suspend' }}
               </button>
               <button
-                v-if="user.role === 'USER'"
+                v-if="user.suspended"
+                @click="unsuspendUser(user.id)"
+                class="text-blue-600 hover:text-blue-900"
+                :disabled="unsuspending === user.id"
+              >
+                {{ unsuspending === user.id ? 'Restoring...' : 'Restore' }}
+              </button>
+              <button
+                v-if="user.role === 'USER' && !user.suspended"
                 @click="makeAdmin(user.id)"
                 class="text-purple-600 hover:text-purple-900"
                 :disabled="updating === user.id"
@@ -319,7 +337,7 @@ const currentUserId = computed(() => (user.value as any)?.id)
 const filters = ref({
   search: '',
   role: '',
-  verified: ''
+  status: ''
 })
 
 // Pagination
@@ -330,7 +348,8 @@ const hasMore = ref(true)
 // Loading states
 const verifying = ref<string | null>(null)
 const updating = ref<string | null>(null)
-const unverifying = ref<string | null>(null)
+const suspending = ref<string | null>(null)
+const unsuspending = ref<string | null>(null)
 const deleting = ref<string | null>(null)
 
 // Delete modal state
@@ -346,7 +365,7 @@ const queryParams = computed(() => {
   }
   if (filters.value.search) params.search = filters.value.search
   if (filters.value.role) params.role = filters.value.role
-  if (filters.value.verified) params.verified = filters.value.verified
+  if (filters.value.status) params.status = filters.value.status
   return params
 })
 
@@ -378,7 +397,7 @@ const resetFilters = () => {
   filters.value = {
     search: '',
     role: '',
-    verified: ''
+    status: ''
   }
   currentPage.value = 1
   refresh()
@@ -464,14 +483,14 @@ const removeAdmin = async (userId: string) => {
   }
 }
 
-// Unverify user (suspend account)
-const unverifyUser = async (userId: string) => {
+// Suspend user
+const suspendUser = async (userId: string) => {
   const reason = prompt('Please provide a reason for suspending this account:')
   if (!reason) return
   
-  unverifying.value = userId
+  suspending.value = userId
   try {
-    await $fetch(`/api/admin/users/${userId}/unverify`, {
+    await $fetch(`/api/admin/users/${userId}/suspend`, {
       method: 'POST',
       body: { reason }
     })
@@ -480,7 +499,25 @@ const unverifyUser = async (userId: string) => {
   } catch (error: any) {
     alert('Failed to suspend user: ' + error.message)
   } finally {
-    unverifying.value = null
+    suspending.value = null
+  }
+}
+
+// Unsuspend user (restore account)
+const unsuspendUser = async (userId: string) => {
+  if (!confirm('Are you sure you want to restore this user account?')) return
+  
+  unsuspending.value = userId
+  try {
+    await $fetch(`/api/admin/users/${userId}/unsuspend`, {
+      method: 'POST'
+    })
+    alert('User account has been restored successfully')
+    await refresh()
+  } catch (error: any) {
+    alert('Failed to restore user: ' + error.message)
+  } finally {
+    unsuspending.value = null
   }
 }
 

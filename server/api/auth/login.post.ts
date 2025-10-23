@@ -48,7 +48,10 @@ export default defineEventHandler(async (event) => {
         phoneVerified: user.phoneVerified,
         phone: user.phone,
         avatarUrl: user.profile?.avatarUrl || null,
-        provider: 'email'
+        provider: 'email',
+        suspended: (user as any).suspended || false,
+        suspendedAt: (user as any).suspendedAt || null,
+        suspensionReason: (user as any).suspensionReason || null
       },
       loggedInAt: new Date()
     })

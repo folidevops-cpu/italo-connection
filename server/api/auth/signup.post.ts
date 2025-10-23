@@ -49,6 +49,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Check if displayName is already taken (if provided)
+    if (displayName) {
+      const existingDisplayName = await prisma.profile.findFirst({
+        where: {
+          displayName: displayName
+        }
+      })
+
+      if (existingDisplayName) {
+        throw createError({
+          statusCode: 409,
+          statusMessage: 'This display name is already taken'
+        })
+      }
+    }
+
     // Hash password
     const saltRounds = 10
     const passwordHash = await bcrypt.hash(password, saltRounds)
@@ -94,7 +110,10 @@ export default defineEventHandler(async (event) => {
         phoneVerified: user.phoneVerified,
         phone: user.phone,
         avatarUrl: user.profile?.avatarUrl || null,
-        provider: 'email'
+        provider: 'email',
+        suspended: false,
+        suspendedAt: null,
+        suspensionReason: null
       },
       loggedInAt: new Date()
     })
@@ -108,6 +127,16 @@ export default defineEventHandler(async (event) => {
     
     // Check for Prisma unique constraint violations
     if (error.code === 'P2002') {
+      // Get the field that violated the unique constraint
+      const target = error.meta?.target?.[0]
+      
+      if (target === 'displayName') {
+        throw createError({
+          statusCode: 409,
+          statusMessage: 'This display name is already taken'
+        })
+      }
+      
       throw createError({
         statusCode: 409,
         statusMessage: 'User with this email or phone already exists'

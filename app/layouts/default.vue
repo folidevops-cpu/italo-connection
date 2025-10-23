@@ -3,6 +3,9 @@
     <!-- Navigation Bar -->
     <UiNavBar />
     
+    <!-- Suspension Banner (shows if account is suspended) -->
+    <SuspensionBanner />
+    
     <!-- Announcement Banner -->
     <AnnouncementBanner />
     

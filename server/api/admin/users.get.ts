@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   const limit = parseInt(query.limit as string) || 20
   const search = query.search as string || ''
   const role = query.role as string || ''
-  const verified = query.verified as string || ''
+  const status = query.status as string || ''
 
   try {
     const { PrismaClient } = await import('@prisma/client')
@@ -42,9 +42,14 @@ export default defineEventHandler(async (event) => {
       where.role = role
     }
 
-    if (verified === 'true') {
+    if (status === 'suspended') {
+      where.suspended = true
+    } else if (status === 'active') {
+      where.suspended = false
+    } else if (status === 'verified') {
       where.emailVerified = true
-    } else if (verified === 'false') {
+      where.suspended = false
+    } else if (status === 'unverified') {
       where.emailVerified = false
     }
 
@@ -62,6 +67,9 @@ export default defineEventHandler(async (event) => {
         role: true,
         emailVerified: true,
         phoneVerified: true,
+        suspended: true,
+        suspendedAt: true,
+        suspensionReason: true,
         createdAt: true,
         profile: {
           select: {

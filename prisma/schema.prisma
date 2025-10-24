@@ -58,6 +58,10 @@ model Profile {
   instagramUrl String?
   tiktokUrl    String?
   
+  // Contact Information
+  phone        String?
+  whatsapp     String?
+  
   // Other
   avatarUrl   String?
   createdAt   DateTime @default(now())

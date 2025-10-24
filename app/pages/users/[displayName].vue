@@ -63,6 +63,7 @@
             </div>
 
             <!-- Social Links -->
+                        <!-- Social Links -->
             <div v-if="userProfile.facebookUrl || userProfile.instagramUrl || userProfile.tiktokUrl" class="flex gap-3 mb-4">
               <a v-if="userProfile.facebookUrl" :href="userProfile.facebookUrl" target="_blank" rel="noopener noreferrer" 
                  class="text-blue-600 hover:text-blue-800">
@@ -79,10 +80,55 @@
               <a v-if="userProfile.tiktokUrl" :href="userProfile.tiktokUrl" target="_blank" rel="noopener noreferrer"
                  class="text-gray-800 hover:text-black">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.10-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.40-.67.41-1.06.10-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
                 </svg>
               </a>
             </div>
+
+            <!-- Contact Information (Phone & WhatsApp) -->
+            <div v-if="userProfile.phone || userProfile.whatsapp" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                Contact Information
+                <span v-if="!userProfile.canSeeFullContact" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                  🔒 Partially Hidden
+                </span>
+              </h3>
+              
+              <!-- Warning message for unverified users -->
+              <div v-if="userProfile.contactMessage" class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+                {{ userProfile.contactMessage }}
+              </div>
+              
+              <div class="space-y-2">
+                <div v-if="userProfile.phone" class="flex items-center gap-2 text-sm">
+                  <svg class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  <span :class="userProfile.canSeeFullContact ? 'text-gray-900 font-medium' : 'text-gray-500'">
+                    📞 {{ userProfile.phone }}
+                  </span>
+                  <a v-if="userProfile.canSeeFullContact" :href="`tel:${userProfile.phone}`" 
+                     class="ml-auto text-blue-600 hover:text-blue-700 text-xs font-medium">
+                    Call
+                  </a>
+                </div>
+                <div v-if="userProfile.whatsapp" class="flex items-center gap-2 text-sm">
+                  <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                  <span :class="userProfile.canSeeFullContact ? 'text-gray-900 font-medium' : 'text-gray-500'">
+                    💬 {{ userProfile.whatsapp }}
+                  </span>
+                  <a v-if="userProfile.canSeeFullContact" :href="`https://wa.me/${userProfile.whatsapp.replace(/[^0-9]/g, '')}`" 
+                     target="_blank" rel="noopener noreferrer"
+                     class="ml-auto text-green-600 hover:text-green-700 text-xs font-medium">
+                    Chat
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
 
             <!-- Action Buttons -->
             <div class="flex gap-3">
@@ -217,67 +263,106 @@
     <Teleport to="body">
       <div v-if="showContactModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg max-w-md w-full p-6">
-          <h3 class="text-xl font-bold text-gray-900 mb-4">Contact {{ userProfile?.displayName }}</h3>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900">Contact {{ userProfile?.displayName }}</h3>
+            <button @click="showContactModal = false" class="text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
           
-          <form @submit.prevent="submitContact">
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Your Email</label>
-              <input 
-                v-model="contactForm.email" 
-                type="email" 
-                placeholder="your@email.com"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+          <!-- Loading Contact Info -->
+          <div v-if="loadingContactInfo" class="text-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="mt-2 text-gray-600">Loading contact information...</p>
+          </div>
+
+          <!-- Contact Information -->
+          <div v-else-if="contactInfo" class="space-y-4">
+            <!-- Warning Message -->
+            <div v-if="!contactInfo.canSeeFullInfo" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p class="text-sm text-yellow-800">
+                {{ contactInfo.message }}
+              </p>
             </div>
 
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-              <input 
-                v-model="contactForm.subject" 
-                type="text" 
-                placeholder="What is this about?"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                maxlength="100"
-              />
+            <!-- Social Links -->
+            <div v-if="contactInfo.facebookUrl || contactInfo.instagramUrl || contactInfo.tiktokUrl">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Social Media</h4>
+              <div class="space-y-2">
+                <a v-if="contactInfo.facebookUrl" :href="contactInfo.facebookUrl" target="_blank" rel="noopener noreferrer" 
+                   class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  <span class="text-sm text-gray-700">Facebook Profile</span>
+                </a>
+
+                <a v-if="contactInfo.instagramUrl" :href="contactInfo.instagramUrl" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <svg class="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                  <span class="text-sm text-gray-700">Instagram Profile</span>
+                </a>
+
+                <a v-if="contactInfo.tiktokUrl" :href="contactInfo.tiktokUrl" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.10-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.40-.67.41-1.06.10-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                  </svg>
+                  <span class="text-sm text-gray-700">TikTok Profile</span>
+                </a>
+              </div>
             </div>
 
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-              <textarea 
-                v-model="contactForm.message" 
-                rows="4"
-                placeholder="Write your message..."
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                minlength="10"
-                maxlength="1000"
-              ></textarea>
+            <!-- Phone Number -->
+            <div v-if="contactInfo.phone">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Phone Number</h4>
+              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span :class="contactInfo.canSeeFullInfo ? 'text-gray-900 font-medium' : 'text-gray-500'">
+                  {{ contactInfo.phone }}
+                </span>
+                <a v-if="contactInfo.canSeeFullInfo" :href="`tel:${contactInfo.phone}`" 
+                   class="ml-auto text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  Call
+                </a>
+              </div>
             </div>
 
-            <div v-if="contactError" class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-              {{ contactError }}
+            <!-- WhatsApp Number -->
+            <div v-if="contactInfo.whatsapp">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">WhatsApp</h4>
+              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+                <span :class="contactInfo.canSeeFullInfo ? 'text-gray-900 font-medium' : 'text-gray-500'">
+                  {{ contactInfo.whatsapp }}
+                </span>
+                <a v-if="contactInfo.canSeeFullInfo" :href="`https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}`" 
+                   target="_blank" rel="noopener noreferrer"
+                   class="ml-auto text-green-600 hover:text-green-700 text-sm font-medium">
+                  Chat
+                </a>
+              </div>
             </div>
 
-            <div class="flex gap-3 justify-end">
-              <button 
-                type="button" 
-                @click="showContactModal = false"
-                class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-                :disabled="contactSubmitting"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                :disabled="contactSubmitting"
-              >
-                {{ contactSubmitting ? 'Sending...' : 'Send Message' }}
-              </button>
+            <!-- No Contact Info Available -->
+            <div v-if="!contactInfo.facebookUrl && !contactInfo.instagramUrl && !contactInfo.tiktokUrl && !contactInfo.phone && !contactInfo.whatsapp" 
+                 class="text-center py-8 text-gray-500">
+              No contact information available
             </div>
-          </form>
+          </div>
+
+          <!-- Error State -->
+          <div v-else-if="contactInfoError" class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p class="text-sm text-red-800">{{ contactInfoError }}</p>
+          </div>
         </div>
       </div>
     </Teleport>
@@ -320,13 +405,9 @@ const reportForm = ref({
 const reportError = ref('')
 const reportSubmitting = ref(false)
 
-const contactForm = ref({
-  email: '',
-  subject: '',
-  message: ''
-})
-const contactError = ref('')
-const contactSubmitting = ref(false)
+const contactInfo = ref<any>(null)
+const loadingContactInfo = ref(false)
+const contactInfoError = ref('')
 
 // Fetch user profile
 const fetchProfile = async () => {
@@ -367,27 +448,28 @@ const submitReport = async () => {
   }
 }
 
-// Submit contact (placeholder - to be implemented)
-const submitContact = async () => {
-  contactError.value = ''
-  contactSubmitting.value = true
+// Fetch contact info
+const fetchContactInfo = async () => {
+  loadingContactInfo.value = true
+  contactInfoError.value = ''
+  contactInfo.value = null
 
   try {
-    // TODO: Implement contact endpoint
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    showContactModal.value = false
-    successMessage.value = 'Message sent successfully!'
-    showSuccessModal.value = true
-    
-    // Reset form
-    contactForm.value = { email: '', subject: '', message: '' }
+    const response = await $fetch(`/api/users/${displayName}/contact`)
+    contactInfo.value = response
   } catch (err: any) {
-    contactError.value = 'Failed to send message'
+    contactInfoError.value = err.data?.statusMessage || 'Failed to load contact information'
   } finally {
-    contactSubmitting.value = false
+    loadingContactInfo.value = false
   }
 }
+
+// Watch for contact modal opening to fetch contact info
+watch(showContactModal, (newValue) => {
+  if (newValue && !contactInfo.value) {
+    fetchContactInfo()
+  }
+})
 
 // Format date helper
 const formatDate = (date: string) => {

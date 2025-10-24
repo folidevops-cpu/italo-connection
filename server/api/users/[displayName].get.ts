@@ -56,6 +56,38 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Get current user session to determine visibility
+    const { user: currentUser } = await getUserSession(event)
+    const isLoggedIn = !!currentUser
+    const isEmailVerified = currentUser ? (currentUser as any).emailVerified : false
+
+    // Helper function to mask contact info
+    const maskContact = (contact: string | null) => {
+      if (!contact || contact.length < 3) return 'XXX-XXXXX'
+      return contact.substring(0, 3) + 'X'.repeat(Math.max(5, contact.length - 3))
+    }
+
+    // Determine phone and whatsapp visibility
+    let phone = null
+    let whatsapp = null
+    let contactMessage = null
+
+    if (isEmailVerified) {
+      // Email verified users can see full contact information
+      phone = (profile as any).phone
+      whatsapp = (profile as any).whatsapp
+    } else if (isLoggedIn) {
+      // Logged in but not email verified users see masked info
+      phone = (profile as any).phone ? maskContact((profile as any).phone) : null
+      whatsapp = (profile as any).whatsapp ? maskContact((profile as any).whatsapp) : null
+      contactMessage = 'Verify your email to see full contact details'
+    } else {
+      // Not logged in users see masked info
+      phone = (profile as any).phone ? maskContact((profile as any).phone) : null
+      whatsapp = (profile as any).whatsapp ? maskContact((profile as any).whatsapp) : null
+      contactMessage = 'Please login and verify your email to see full contact details'
+    }
+
     // Format the response
     return {
       displayName: profile.displayName,
@@ -69,6 +101,10 @@ export default defineEventHandler(async (event) => {
       facebookUrl: profile.facebookUrl,
       instagramUrl: profile.instagramUrl,
       tiktokUrl: profile.tiktokUrl,
+      phone: phone,
+      whatsapp: whatsapp,
+      contactMessage: contactMessage,
+      canSeeFullContact: isEmailVerified,
       memberSince: profile.user.createdAt,
       emailVerified: profile.user.emailVerified,
       phoneVerified: profile.user.phoneVerified,

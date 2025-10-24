@@ -31,6 +31,10 @@ export default defineEventHandler(async (event) => {
     cap,
     googlePlaceId,
     
+    // Contact Information
+    phone,
+    whatsapp,
+    
     // Social Media
     facebookUrl,
     instagramUrl,
@@ -99,47 +103,55 @@ export default defineEventHandler(async (event) => {
     }
     
     // Update profile in database
+    const updateData: any = {
+      firstName,
+      middleName,
+      surname,
+      displayName,
+      bio,
+      nationality,
+      maritalStatus,
+      street,
+      streetNumber,
+      town,
+      province,
+      cap,
+      googlePlaceId,
+      phone,
+      whatsapp,
+      facebookUrl,
+      instagramUrl,
+      tiktokUrl,
+      avatarUrl
+    }
+
+    const createData: any = {
+      userId: userData.id,
+      firstName,
+      middleName,
+      surname,
+      displayName: displayName || userData.email?.split('@')[0] || '',
+      bio,
+      nationality,
+      maritalStatus,
+      street,
+      streetNumber,
+      town,
+      province,
+      cap,
+      googlePlaceId,
+      phone,
+      whatsapp,
+      facebookUrl,
+      instagramUrl,
+      tiktokUrl,
+      avatarUrl
+    }
+
     const updatedProfile = await prisma.profile.upsert({
       where: { userId: userData.id },
-      update: {
-        firstName,
-        middleName,
-        surname,
-        displayName,
-        bio,
-        nationality,
-        maritalStatus,
-        street,
-        streetNumber,
-        town,
-        province,
-        cap,
-        googlePlaceId,
-        facebookUrl,
-        instagramUrl,
-        tiktokUrl,
-        avatarUrl
-      },
-      create: {
-        userId: userData.id,
-        firstName,
-        middleName,
-        surname,
-        displayName: displayName || userData.email?.split('@')[0] || '',
-        bio,
-        nationality,
-        maritalStatus,
-        street,
-        streetNumber,
-        town,
-        province,
-        cap,
-        googlePlaceId,
-        facebookUrl,
-        instagramUrl,
-        tiktokUrl,
-        avatarUrl
-      },
+      update: updateData,
+      create: createData,
       include: {
         user: {
           select: {

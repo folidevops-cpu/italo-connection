@@ -22,6 +22,7 @@ model User {
   updatedAt          DateTime            @updatedAt
   auditLogs          AuditLog[]
   listings           Listing[]
+  services           Service[]
   notifications      Notification[]
   profile            Profile?
   verificationTokens VerificationToken[]
@@ -175,4 +176,47 @@ model UserReport {
   reportedUser User     @relation("ReportedUserReports", fields: [reportedUserId], references: [id], onDelete: Cascade)
 
   @@map("user_reports")
+}
+
+model ServiceType {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  services    Service[]
+
+  @@map("service_types")
+}
+
+model Service {
+  id            String      @id @default(cuid())
+  ownerId       String
+  serviceTypeId String
+  name          String
+  description   String
+  location      String
+  price         Decimal     @db.Decimal(10, 2)
+  status        String      @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  owner         User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  serviceType   ServiceType @relation(fields: [serviceTypeId], references: [id], onDelete: Restrict)
+  media         ServiceMedia[]
+
+  @@map("services")
+}
+
+model ServiceMedia {
+  id        String   @id @default(cuid())
+  serviceId String
+  url       String
+  key       String
+  type      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@map("service_media")
 }

@@ -18,6 +18,13 @@
             Browse Listings
           </NuxtLink>
           
+          <NuxtLink 
+            to="/services" 
+            class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+          >
+            Services
+          </NuxtLink>
+          
           <template v-if="loggedIn">
             <!-- Authenticated user menu -->
             <NuxtLink 
@@ -33,11 +40,17 @@
               Create Listing
             </NuxtLink>
             <NuxtLink 
+              to="/services/create" 
+              class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Offer Service
+            </NuxtLink>
+            <!-- <NuxtLink 
               to="/profile" 
               class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
               Profile
-            </NuxtLink>
+            </NuxtLink> -->
             
             <!-- Admin link (only for admin users) -->
             <NuxtLink 
@@ -94,6 +107,12 @@
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Your Listings
+                </NuxtLink>
+                <NuxtLink 
+                  to="/services/my" 
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  My Services
                 </NuxtLink>
                 <button 
                   @click="handleLogout" 
@@ -158,6 +177,13 @@
             Browse Listings
           </NuxtLink>
           
+          <NuxtLink 
+            to="/services" 
+            class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
+          >
+            Services
+          </NuxtLink>
+          
           <template v-if="loggedIn">
             <NuxtLink 
               to="/dashboard" 
@@ -170,6 +196,24 @@
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
               Create Listing
+            </NuxtLink>
+            <NuxtLink 
+              to="/services/create" 
+              class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
+            >
+              Offer Service
+            </NuxtLink>
+            <NuxtLink 
+              to="/listings/my" 
+              class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
+            >
+              Your Listings
+            </NuxtLink>
+            <NuxtLink 
+              to="/services/my" 
+              class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
+            >
+              My Services
             </NuxtLink>
             <NuxtLink 
               to="/profile" 

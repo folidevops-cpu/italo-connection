@@ -55,6 +55,8 @@ export default defineEventHandler(async (event) => {
     folder = 'house-renting'
   } else if (listingType === 'item') {
     folder = 'items'
+  } else if (listingType === 'service') {
+    folder = 'service-images'
   } else {
     throw createError({
       statusCode: 400,

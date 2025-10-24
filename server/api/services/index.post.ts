@@ -1,0 +1,87 @@
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+export default defineEventHandler(async (event) => {
+  // Check authentication
+  const { user } = await getUserSession(event)
+  
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized - Please login'
+    })
+  }
+
+  const body = await readBody(event)
+  const { name, description, serviceTypeId, location, price, images } = body
+  
+  // Debug log
+  console.log('Creating service with images:', images ? images.length : 0, 'images')
+  
+  // Validate required fields
+  if (!name || !description || !serviceTypeId || !location || !price) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Name, description, service type, location, and price are required'
+    })
+  }
+
+  try {
+    // Verify service type exists
+    const serviceType = await prisma.serviceType.findUnique({
+      where: { id: serviceTypeId }
+    })
+
+    if (!serviceType || !serviceType.isActive) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid or inactive service type'
+      })
+    }
+
+    // Create service with media
+    const service = await prisma.service.create({
+      data: {
+        name,
+        description,
+        serviceTypeId,
+        location,
+        price: parseFloat(price),
+        ownerId: (user as any).id,
+        status: 'APPROVED',
+        media: images && images.length > 0 ? {
+          create: images.map((media: any, index: number) => ({
+            url: media.url,
+            key: media.key,
+            type: media.type || 'image',
+            order: index
+          }))
+        } : undefined
+      },
+      include: {
+        serviceType: true,
+        media: true,
+        owner: {
+          include: {
+            profile: true
+          }
+        }
+      }
+    })
+
+    return { success: true, service }
+  } catch (error: any) {
+    if (error.statusCode) {
+      throw error
+    }
+    
+    console.error('Failed to create service:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to create service'
+    })
+  } finally {
+    await prisma.$disconnect()
+  }
+})

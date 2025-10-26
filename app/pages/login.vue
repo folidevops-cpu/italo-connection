@@ -114,8 +114,8 @@
         </a>
       </div>
 
-      <div class="mt-6">
-        <!-- Demo credentials helper -->
+      <!-- Demo credentials helper -->
+      <!-- <div class="mt-6">
         <div class="mt-6 p-4 bg-gray-100 rounded-md">
           <p class="text-sm text-gray-600 text-center mb-2">Demo credentials:</p>
           <div class="text-xs text-gray-500 space-y-1">
@@ -123,7 +123,7 @@
             <p>User: user@test.com / user123</p>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

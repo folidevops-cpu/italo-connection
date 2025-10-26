@@ -52,20 +52,19 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      // Send 2FA code via email
-      const emailSent = await send2FACodeEmail(
+      // Send 2FA code via email asynchronously (non-blocking)
+      // Don't await - let it run in background
+      send2FACodeEmail(
         user.email,
         otp,
-        user.profile?.firstName || user.profile?.displayName
-      )
+        user.profile?.firstName || user.profile?.displayName || undefined
+      ).catch(error => {
+        console.error('Failed to send 2FA email to:', user.email, error)
+        // Log the error but don't fail the request
+      })
 
-      if (!emailSent) {
-        console.error('Failed to send 2FA email to:', user.email)
-        // Still allow them to proceed, but log the error
-      }
-
-      // Create audit log for 2FA attempt
-      await prisma.auditLog.create({
+      // Create audit log asynchronously (non-blocking)
+      prisma.auditLog.create({
         data: {
           userId: user.id,
           action: 'TWO_FACTOR_REQUESTED',
@@ -74,11 +73,13 @@ export default defineEventHandler(async (event) => {
             timestamp: new Date().toISOString(),
           },
         },
+      }).catch(error => {
+        console.error('Failed to create audit log:', error)
       })
 
-      console.log(`✅ 2FA code sent to ${user.email}`)
+      console.log(`✅ 2FA code generation completed for ${user.email}`)
 
-      // Return requires2FA flag with user ID for verification
+      // Return immediately - don't wait for email
       return {
         success: false,
         requires2FA: true,

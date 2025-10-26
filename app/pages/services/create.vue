@@ -52,13 +52,15 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
 
-            <InputsTextField
+            <InputsGooglePlacesField
               v-model="form.location"
               label="Location"
-              type="text"
-              placeholder="City, Country"
-              required 
-              />
+              placeholder="Start typing a location..."
+              hint="Select a location from the dropdown"
+              country-restrict="IT"
+              required
+              @place-selected="handleLocationSelected"
+            />
 
            
           </div>
@@ -259,6 +261,24 @@ const form = ref({
   location: "",
   price: 0,
 });
+
+// Store additional location data if needed
+const locationData = ref<any>(null);
+
+// Handle location selection from Google Places
+const handleLocationSelected = (placeData: any) => {
+  console.log('Location selected:', placeData);
+  
+  // Store the formatted address
+  form.value.location = placeData.formattedAddress || '';
+  
+  // Optionally store additional location data (place ID, coordinates, etc.)
+  locationData.value = {
+    placeId: placeData.placeId,
+    coordinates: placeData.geometry,
+    addressComponents: placeData.addressComponents
+  };
+};
 
 // Image upload state
 const uploadedImages = ref<Array<{ publicUrl: string; key: string }>>([]);

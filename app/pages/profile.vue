@@ -184,21 +184,17 @@
             </div>
 
             <div class="mt-6">
-
               <InputsTextAreaField
                 v-model="form.bio"
                 label="Bio"
                 :rows="4"
                 :maxlength="500"
                 placeholder="Tell others about yourself..."
-                />
-              
-             
+              />
             </div>
 
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-
                 <InputsTextField
                   v-model="form.nationality"
                   label="Nationality"
@@ -206,19 +202,15 @@
                   placeholder="Your nationality"
                   required
                 />
-
-               
-
-
               </div>
 
               <div>
-
-               <InputsSelectField
+                <InputsSelectField
                   v-model="form.maritalStatus"
                   :options="maritalStatusOptions"
                   label="Marital Status"
-                  placeholder="Select your marital status" />
+                  placeholder="Select your marital status"
+                />
 
                 <!-- <label
                   for="maritalStatus"
@@ -240,12 +232,11 @@
                     {{ status.label }}
                   </option>
                 </select> -->
-
-
               </div>
             </div>
           </div>
 
+          <!-- Section 2: Residence Information -->
           <!-- Section 2: Residence Information -->
           <div class="bg-white shadow rounded-lg p-6">
             <h2
@@ -267,6 +258,31 @@
               Residence (Italy)
             </h2>
 
+            <!-- Google Places Autocomplete -->
+            <div class="mb-6">
+              <InputsGooglePlacesField
+                v-model="addressSearchText"
+                label="Search Address"
+                placeholder="Start typing your address..."
+                hint="Select your address from the dropdown to auto-fill all fields"
+                country-restrict="IT"
+                @place-selected="handlePlaceSelected"
+              />
+            </div>
+
+            <!-- Divider -->
+            <div class="relative my-6">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white text-gray-500"
+                  >Or fill manually</span
+                >
+              </div>
+            </div>
+
+            <!-- Manual address fields (auto-filled by Google Places) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <InputsTextField
@@ -317,15 +333,16 @@
               </div>
             </div>
 
-            <div class="mt-6">
+            <!-- <div class="mt-6">
               <InputsTextField
                 v-model="form.googlePlaceId"
-                label="Google Place ID (Optional)"
+                label="Google Place ID"
                 type="text"
-                placeholder="ChIJ..."
-                hint="For precise location mapping with Google Places API"
+                placeholder="Auto-filled from Google Places"
+                
+                hint="Automatically set when you select an address above"
               />
-            </div>
+            </div> -->
           </div>
 
           <!-- Section 3: Social Media Links -->
@@ -358,7 +375,9 @@
                   placeholder="https://facebook.com/yourusername"
                 >
                   <template #label>
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                    <label
+                      class="text-sm font-medium text-gray-700 flex items-center"
+                    >
                       <svg
                         class="h-5 w-5 text-blue-600 mr-2"
                         fill="currentColor"
@@ -382,7 +401,9 @@
                   placeholder="https://instagram.com/yourusername"
                 >
                   <template #label>
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                    <label
+                      class="text-sm font-medium text-gray-700 flex items-center"
+                    >
                       <svg
                         class="h-5 w-5 text-pink-600 mr-2"
                         fill="currentColor"
@@ -406,7 +427,9 @@
                   placeholder="https://tiktok.com/@yourusername"
                 >
                   <template #label>
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                    <label
+                      class="text-sm font-medium text-gray-700 flex items-center"
+                    >
                       <svg
                         class="h-5 w-5 text-black mr-2"
                         fill="currentColor"
@@ -431,7 +454,9 @@
                   hint="Only visible to email verified users"
                 >
                   <template #label>
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                    <label
+                      class="text-sm font-medium text-gray-700 flex items-center"
+                    >
                       <svg
                         class="h-5 w-5 text-gray-600 mr-2"
                         fill="none"
@@ -460,7 +485,9 @@
                   hint="Only visible to email verified users"
                 >
                   <template #label>
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                    <label
+                      class="text-sm font-medium text-gray-700 flex items-center"
+                    >
                       <svg
                         class="h-5 w-5 text-green-600 mr-2"
                         fill="currentColor"
@@ -570,16 +597,16 @@ useSeoMeta({
 // Italian provinces and marital status options
 const italianProvinces = ITALIAN_PROVINCES;
 const maritalStatusOptions = [
-  { value: 'single', label: 'Single' },
-  { value: 'married', label: 'Married' },
-  { value: 'prefer_not_say', label: 'Prefer not to say' }
+  { value: "single", label: "Single" },
+  { value: "married", label: "Married" },
+  { value: "prefer_not_say", label: "Prefer not to say" },
 ];
 
 // Computed options for SelectField components
 const provinceOptions = computed(() => {
-  return italianProvinces.map(province => ({
+  return italianProvinces.map((province) => ({
     value: province.code,
-    label: `${province.name} (${province.code})`
+    label: `${province.name} (${province.code})`,
   }));
 });
 
@@ -625,8 +652,6 @@ watch(profileError, (error) => {
     navigateTo("/auth/login");
   }
 });
-
-
 
 // Form state
 const form = ref({
@@ -713,6 +738,53 @@ const resetForm = () => {
   }
   updateError.value = "";
   updateSuccess.value = false;
+};
+
+// Add to the form ref
+const addressSearchText = ref("");
+
+// Handler for when a place is selected from Google Places
+const handlePlaceSelected = (placeData: any) => {
+  console.log("Place selected:", placeData);
+
+  const { addressComponents, placeId } = placeData;
+
+  // Auto-fill the form fields
+  if (addressComponents.route) {
+    form.value.street = addressComponents.route;
+  }
+
+  if (addressComponents.street_number) {
+    form.value.streetNumber = addressComponents.street_number;
+  }
+
+  if (addressComponents.locality) {
+    form.value.town = addressComponents.locality;
+  }
+
+  if (addressComponents.administrative_area_level_2) {
+    form.value.province = addressComponents.administrative_area_level_2;
+  }
+
+  if (addressComponents.postal_code) {
+    form.value.cap = addressComponents.postal_code;
+  }
+
+  if (placeId) {
+    form.value.googlePlaceId = placeId;
+  }
+
+  // Show success message
+  updateSuccess.value = true;
+  updateError.value = "";
+
+  // Clear the search text
+  addressSearchText.value = placeData.formattedAddress || "";
+
+  // Auto-scroll to the filled fields
+  setTimeout(() => {
+    updateSuccess.value = false;
+  }, 3000);
 };
 
 // ✅ Use $fetch for form submission

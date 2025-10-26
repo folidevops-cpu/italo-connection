@@ -9,12 +9,16 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
+    const prisma = usePrisma()
 
     // Fetch listing with media and owner info
-    const listing = await prisma.listing.findUnique({
-      where: { id: listingId },
+    const listing = await prisma.listing.findFirst({
+      where: { 
+        id: listingId,
+        owner: {
+          deletedAt: null // Exclude listings from deleted users
+        }
+      },
       include: {
         media: {
           orderBy: {
@@ -25,6 +29,7 @@ export default defineEventHandler(async (event) => {
           select: {
             id: true,
             email: true,
+            deletedAt: true,
             profile: {
               select: {
                 displayName: true,
@@ -36,12 +41,10 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    await prisma.$disconnect()
-
     if (!listing) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Listing not found'
+        statusMessage: 'Listing not found or owner account has been deleted'
       })
     }
 

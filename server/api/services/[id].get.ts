@@ -13,8 +13,13 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const service = await prisma.service.findUnique({
-      where: { id: serviceId },
+    const service = await prisma.service.findFirst({
+      where: { 
+        id: serviceId,
+        owner: {
+          deletedAt: null // Exclude services from deleted users
+        }
+      },
       include: {
         serviceType: true,
         owner: {
@@ -29,15 +34,13 @@ export default defineEventHandler(async (event) => {
         }
       }
     })
-
+    
     if (!service) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Service not found'
+        statusMessage: 'Service not found or owner account has been deleted'
       })
-    }
-
-    return service
+    }    return service
   } catch (error: any) {
     if (error.statusCode) {
       throw error

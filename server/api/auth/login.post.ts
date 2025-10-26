@@ -16,15 +16,18 @@ export default defineEventHandler(async (event) => {
   
   try {
     // Authenticate with database using Prisma
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: { 
+        email,
+        deletedAt: null // Only allow login for non-deleted accounts
+      },
       include: { profile: true }
     })
     
     if (!user) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Invalid credentials'
+        statusMessage: 'Invalid credentials or account has been deleted'
       })
     }
 

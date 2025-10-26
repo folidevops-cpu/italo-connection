@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
 
   try {
     const where: any = {
-      status: status as string
+      status: status as string,
+      owner: {
+        deletedAt: null // Exclude services from deleted users
+      }
     }
 
     // Filter by service type

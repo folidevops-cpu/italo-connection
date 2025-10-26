@@ -22,6 +22,8 @@ model User {
   resetTokenExpiry   DateTime?
   twoFactorSecret    String?             // Stores OTP code temporarily
   twoFactorExpiry    DateTime?           // OTP expiration time
+  deletedAt          DateTime?           // Soft delete timestamp
+  deletionReason     String?             // Reason for account deletion
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   auditLogs          AuditLog[]
@@ -33,6 +35,7 @@ model User {
   reportsSubmitted   UserReport[]        @relation("ReporterReports")
   reportsReceived    UserReport[]        @relation("ReportedUserReports")
 
+  @@index([deletedAt])
   @@map("users")
 }
 

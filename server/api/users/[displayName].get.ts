@@ -16,7 +16,10 @@ export default defineEventHandler(async (event) => {
     // Find user by display name
     const profile = await prisma.profile.findFirst({
       where: {
-        displayName: displayName
+        displayName: displayName,
+        user: {
+          deletedAt: null // Only find profiles of non-deleted users
+        }
       },
       include: {
         user: {
@@ -28,6 +31,7 @@ export default defineEventHandler(async (event) => {
             createdAt: true,
             emailVerified: true,
             phoneVerified: true,
+            deletedAt: true,
             listings: {
               where: {
                 status: 'APPROVED' // Only show approved listings

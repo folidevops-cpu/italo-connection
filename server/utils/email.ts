@@ -1198,3 +1198,169 @@ Visit ItaloConnection: ${baseUrl}
     text,
   })
 }
+
+// Email template for 2FA verification code
+export const send2FACodeEmail = async (
+  userEmail: string,
+  code: string,
+  userName?: string
+): Promise<boolean> => {
+  const config = useRuntimeConfig()
+  const baseUrl = config.public?.baseUrl || config.public?.apiBaseUrl || 'http://localhost:3000'
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background-color: #2563eb;
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+          border-radius: 5px 5px 0 0;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        .icon {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+        .content {
+          background-color: #f9fafb;
+          padding: 30px;
+          border: 1px solid #e5e7eb;
+          border-top: none;
+          border-radius: 0 0 5px 5px;
+        }
+        .code-box {
+          background-color: #dbeafe;
+          border: 2px solid #2563eb;
+          padding: 20px;
+          border-radius: 8px;
+          text-align: center;
+          margin: 25px 0;
+        }
+        .code {
+          font-size: 36px;
+          font-weight: bold;
+          letter-spacing: 8px;
+          color: #1e40af;
+          font-family: 'Courier New', monospace;
+        }
+        .warning-box {
+          background-color: #fef3c7;
+          border-left: 4px solid #f59e0b;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 4px;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 12px;
+          color: #6b7280;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="icon">🔒</div>
+        <h1>Two-Factor Authentication</h1>
+      </div>
+      <div class="content">
+        <p>Hello${userName ? ` ${userName}` : ''},</p>
+        
+        <p>You are attempting to sign in to your ItaloConnection admin account.</p>
+        
+        <p><strong>Your verification code is:</strong></p>
+        
+        <div class="code-box">
+          <div class="code">${code}</div>
+        </div>
+        
+        <p style="text-align: center; color: #6b7280; font-size: 14px;">
+          Enter this code on the verification page to complete your sign-in.
+        </p>
+        
+        <div class="warning-box">
+          <strong>⚠️ Security Information:</strong>
+          <ul style="margin: 10px 0;">
+            <li>This code will expire in <strong>10 minutes</strong></li>
+            <li>Never share this code with anyone</li>
+            <li>If you didn't attempt to sign in, please secure your account immediately</li>
+          </ul>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+          <strong>Security tip:</strong> ItaloConnection will never ask you for this code via email, phone, or any other method. 
+          Only enter this code on the official ItaloConnection website.
+        </p>
+        
+        <p>If you didn't attempt to sign in, please change your password immediately and contact our support team.</p>
+        
+        <p>Best regards,<br>The ItaloConnection Security Team</p>
+      </div>
+      <div class="footer">
+        <p>This is an automated security message from ItaloConnection.</p>
+        <p>This code was sent because someone attempted to sign in to your admin account.</p>
+        <p style="margin-top: 15px;">
+          <a href="${baseUrl}" style="color: #2563eb; text-decoration: none;">Visit ItaloConnection</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+Two-Factor Authentication - ItaloConnection
+
+Hello${userName ? ` ${userName}` : ''},
+
+You are attempting to sign in to your ItaloConnection admin account.
+
+Your verification code is: ${code}
+
+Enter this code on the verification page to complete your sign-in.
+
+⚠️ Security Information:
+- This code will expire in 10 minutes
+- Never share this code with anyone
+- If you didn't attempt to sign in, please secure your account immediately
+
+Security tip: ItaloConnection will never ask you for this code via email, phone, or any other method. 
+Only enter this code on the official ItaloConnection website.
+
+If you didn't attempt to sign in, please change your password immediately and contact our support team.
+
+Best regards,
+The ItaloConnection Security Team
+
+---
+This is an automated security message from ItaloConnection.
+This code was sent because someone attempted to sign in to your admin account.
+
+Visit ItaloConnection: ${baseUrl}
+  `
+
+  return await sendEmail({
+    to: userEmail,
+    subject: '🔒 Your 2FA Verification Code - ItaloConnection',
+    html,
+    text,
+  })
+}

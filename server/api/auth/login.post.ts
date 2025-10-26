@@ -37,7 +37,58 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Set user session with consistent structure
+    // Check if user is admin and requires 2FA
+    if (user.role === 'ADMIN') {
+      // Generate OTP
+      const otp = generateOTP()
+      
+      // Store OTP in database
+      const stored = await storeOTP(user.id, otp)
+      
+      if (!stored) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: 'Failed to generate verification code'
+        })
+      }
+
+      // Send 2FA code via email
+      const emailSent = await send2FACodeEmail(
+        user.email,
+        otp,
+        user.profile?.firstName || user.profile?.displayName
+      )
+
+      if (!emailSent) {
+        console.error('Failed to send 2FA email to:', user.email)
+        // Still allow them to proceed, but log the error
+      }
+
+      // Create audit log for 2FA attempt
+      await prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'TWO_FACTOR_REQUESTED',
+          meta: {
+            email: user.email,
+            timestamp: new Date().toISOString(),
+          },
+        },
+      })
+
+      console.log(`✅ 2FA code sent to ${user.email}`)
+
+      // Return requires2FA flag with user ID for verification
+      return {
+        success: false,
+        requires2FA: true,
+        userId: user.id,
+        email: user.email,
+        message: 'Verification code sent to your email'
+      }
+    }
+
+    // Set user session with consistent structure (for non-admin users)
     await setUserSession(event, {
       user: {
         id: user.id,

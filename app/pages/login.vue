@@ -173,6 +173,19 @@ if (loggedIn.value) {
           }
         })
 
+        // Check if 2FA is required (admin users)
+        if (response.requires2FA) {
+          // Redirect to 2FA verification page with userId and email
+          await navigateTo({
+            path: '/verify-2fa',
+            query: {
+              userId: response.userId,
+              email: response.email
+            }
+          })
+          return
+        }
+
         if (response.success) {
           // Refresh the user session after successful login
           const { fetch } = useUserSession()

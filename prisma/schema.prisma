@@ -18,6 +18,8 @@ model User {
   suspended          Boolean             @default(false)
   suspendedAt        DateTime?
   suspensionReason   String?
+  resetToken         String?
+  resetTokenExpiry   DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   auditLogs          AuditLog[]

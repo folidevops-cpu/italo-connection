@@ -107,7 +107,10 @@ export const sendAccountSuspendedEmail = async (
     </head>
     <body>
       <div class="header">
-        <h1>⚠️ Account Suspended</h1>
+        <h1><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+</svg>
+ Account Suspended</h1>
       </div>
       <div class="content">
         <p>Hello ${userName},</p>
@@ -1013,6 +1016,184 @@ Visit ItaloConnection: ${appUrl}
   return await sendEmail({
     to: userEmail,
     subject: `🗑️ Your listing "${listingTitle}" has been deleted - ItaloConnection`,
+    html,
+    text,
+  })
+}
+
+// Email template for password reset
+export const sendPasswordResetEmail = async (
+  userEmail: string,
+  resetUrl: string,
+  userName?: string
+): Promise<boolean> => {
+  const config = useRuntimeConfig()
+  const baseUrl = config.public?.baseUrl || config.public?.apiBaseUrl || 'http://localhost:3000'
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background-color: #2563eb;
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+          border-radius: 5px 5px 0 0;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        .icon {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+        .content {
+          background-color: #f9fafb;
+          padding: 30px;
+          border: 1px solid #e5e7eb;
+          border-top: none;
+          border-radius: 0 0 5px 5px;
+        }
+        .button {
+          display: inline-block;
+          padding: 14px 32px;
+          background-color: #2563eb;
+          color: white;
+          text-decoration: none;
+          border-radius: 5px;
+          margin: 20px 0;
+          font-weight: bold;
+          font-size: 16px;
+        }
+        .button:hover {
+          background-color: #1d4ed8;
+        }
+        .warning-box {
+          background-color: #fef3c7;
+          border-left: 4px solid #f59e0b;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 4px;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 12px;
+          color: #6b7280;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+        }
+        .token-box {
+          background-color: #f3f4f6;
+          padding: 10px;
+          border-radius: 4px;
+          font-family: monospace;
+          font-size: 12px;
+          word-break: break-all;
+          margin: 10px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="icon">🔐</div>
+        <h1>Reset Your Password</h1>
+      </div>
+      <div class="content">
+        <p>Hello${userName ? ` ${userName}` : ''},</p>
+        
+        <p>We received a request to reset your password for your ItaloConnection account.</p>
+        
+        <p>Click the button below to set a new password:</p>
+        
+        <div style="text-align: center;">
+          <a href="${resetUrl}" class="button">
+            Reset My Password
+          </a>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280;">
+          Or copy and paste this link into your browser:
+        </p>
+        <div class="token-box">
+          ${resetUrl}
+        </div>
+        
+        <div class="warning-box">
+          <strong>⚠️ Important:</strong>
+          <ul style="margin: 10px 0;">
+            <li>This link will expire in <strong>1 hour</strong></li>
+            <li>The link can only be used once</li>
+            <li>If you didn't request this, please ignore this email</li>
+          </ul>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+          <strong>Security tip:</strong> Never share your password or reset link with anyone. 
+          ItaloConnection will never ask you for your password via email.
+        </p>
+        
+        <p>If you have any concerns about your account security, please contact our support team immediately.</p>
+        
+        <p>Best regards,<br>The ItaloConnection Team</p>
+      </div>
+      <div class="footer">
+        <p>This is an automated security message from ItaloConnection.</p>
+        <p>If you didn't request a password reset, you can safely ignore this email.</p>
+        <p style="margin-top: 15px;">
+          <a href="${baseUrl}" style="color: #2563eb; text-decoration: none;">Visit ItaloConnection</a>
+        </p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const text = `
+Reset Your Password - ItaloConnection
+
+Hello${userName ? ` ${userName}` : ''},
+
+We received a request to reset your password for your ItaloConnection account.
+
+Click the link below to set a new password:
+${resetUrl}
+
+⚠️ Important:
+- This link will expire in 1 hour
+- The link can only be used once
+- If you didn't request this, please ignore this email
+
+Security tip: Never share your password or reset link with anyone. 
+ItaloConnection will never ask you for your password via email.
+
+If you have any concerns about your account security, please contact our support team immediately.
+
+Best regards,
+The ItaloConnection Team
+
+---
+This is an automated security message from ItaloConnection.
+If you didn't request a password reset, you can safely ignore this email.
+
+Visit ItaloConnection: ${baseUrl}
+  `
+
+  return await sendEmail({
+    to: userEmail,
+    subject: '🔐 Reset Your Password - ItaloConnection',
     html,
     text,
   })

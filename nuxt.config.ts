@@ -54,7 +54,8 @@ export default defineNuxtConfig({
     public: {
       // Client-side accessible variables
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
-      googleMapsApiKey: process.env.NUXT_PUBLIC_GOOGLE_MAPS_API_KEY
+      googleMapsApiKey: process.env.NUXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+      baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     }
   },
   

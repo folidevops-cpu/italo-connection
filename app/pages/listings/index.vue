@@ -116,9 +116,15 @@
         :key="listing.id"
         class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200"
       >
-        <!-- Image placeholder -->
-        <div class="aspect-w-16 aspect-h-9 bg-gray-200 rounded-t-lg">
-          <div class="flex items-center justify-center">
+        <!-- Listing Image -->
+        <div class="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
+          <img
+            v-if="listing.media && listing.media.length > 0"
+            :src="listing.media[0].url"
+            :alt="listing.title"
+            class="w-full h-full object-cover"
+          />
+          <div v-else class="w-full h-full flex items-center justify-center">
             <svg
               class="h-12 w-12 text-gray-400"
               fill="none"
@@ -174,27 +180,51 @@
             </NuxtLink>
           </div>
 
-          <div class="mt-3 flex items-center text-xs text-gray-500">
-            <svg
-              class="h-4 w-4 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+          <div class="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between">
+            <div class="flex items-center text-sm text-gray-500">
+              <img
+                v-if="listing.owner?.profile?.avatarUrl"
+                :src="listing.owner.profile.avatarUrl"
+                :alt="listing.owner.profile.displayName"
+                class="w-6 h-6 rounded-full mr-2"
               />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            {{ listing.location || "Location not specified" }}
+              <div
+                v-else
+                class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center mr-2"
+              >
+                <span class="text-white text-xs">
+                  {{
+                    (listing.owner?.profile?.displayName || listing.owner?.email || "U")
+                      .charAt(0)
+                      .toUpperCase()
+                  }}
+                </span>
+              </div>
+              <span>{{ listing.owner?.profile?.displayName || "User" }}</span>
+            </div>
+            
+            <div class="flex items-center text-xs text-gray-400">
+              <svg
+                class="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              {{ listing.owner?.profile?.town || "Location" }}
+            </div>
           </div>
         </div>
       </div>

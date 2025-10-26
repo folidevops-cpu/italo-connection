@@ -43,6 +43,23 @@ export default defineEventHandler(async (event) => {
               orderBy: {
                 createdAt: 'desc'
               }
+            },
+            services: {
+              where: {
+                status: 'APPROVED' // Only show approved services
+              },
+              include: {
+                serviceType: true,
+                media: {
+                  orderBy: {
+                    order: 'asc'
+                  },
+                  take: 1 // Get first image for each service
+                }
+              },
+              orderBy: {
+                createdAt: 'desc'
+              }
             }
           }
         }
@@ -109,6 +126,7 @@ export default defineEventHandler(async (event) => {
       emailVerified: profile.user.emailVerified,
       phoneVerified: profile.user.phoneVerified,
       totalListings: profile.user.listings.length,
+      totalServices: profile.user.services.length,
       listings: profile.user.listings.map(listing => ({
         id: listing.id,
         type: listing.type,
@@ -120,6 +138,16 @@ export default defineEventHandler(async (event) => {
         sharedSlots: listing.sharedSlots,
         createdAt: listing.createdAt,
         imageUrl: listing.media[0]?.url || null
+      })),
+      services: profile.user.services.map(service => ({
+        id: service.id,
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        location: service.location,
+        serviceType: service.serviceType.name,
+        createdAt: service.createdAt,
+        imageUrl: service.media[0]?.url || null
       }))
     }
   } catch (error: any) {

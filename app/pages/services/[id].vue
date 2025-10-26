@@ -159,10 +159,12 @@
             <!-- Contact Button -->
             <div v-if="!isOwner">
               <button
-                @click="contactProvider"
+            
                 class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
               >
+                <NuxtLink :to="`/users/${service.owner.profile.displayName}`">
                 Contact Provider
+                </NuxtLink>
               </button>
               <p class="text-xs text-gray-500 text-center mt-2">
                 Response time: Usually within 24 hours
@@ -255,9 +257,9 @@ const deleteService = async () => {
 }
 
 // Contact provider
-const contactProvider = () => {
-  alert('Messaging feature coming soon! For now, contact the provider through their profile.')
-}
+// const contactProvider = () => {
+//   alert('Messaging feature coming soon! For now, contact the provider through their profile.')
+// }
 
 // Helper function
 const formatDate = (date: string) => {

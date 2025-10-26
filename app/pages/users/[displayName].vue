@@ -62,6 +62,28 @@
               </span>
             </div>
 
+            <!-- Activity Stats -->
+            <div class="flex gap-4 mb-4">
+              <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <div>
+                  <div class="text-xs text-gray-600">Listings</div>
+                  <div class="text-sm font-semibold text-gray-900">{{ userProfile.totalListings }}</div>
+                </div>
+              </div>
+              <div v-if="userProfile.totalServices > 0" class="flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-lg">
+                <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <div>
+                  <div class="text-xs text-gray-600">Services</div>
+                  <div class="text-sm font-semibold text-gray-900">{{ userProfile.totalServices }}</div>
+                </div>
+              </div>
+            </div>
+
             <!-- Social Links -->
                         <!-- Social Links -->
             <div v-if="userProfile.facebookUrl || userProfile.instagramUrl || userProfile.tiktokUrl" class="flex gap-3 mb-4">
@@ -192,6 +214,55 @@
                 <div v-if="listing.capacity || listing.sharedSlots" class="mt-2 text-sm text-gray-600">
                   <span v-if="listing.capacity">Capacity: {{ listing.capacity }}</span>
                   <span v-if="listing.sharedSlots" class="ml-3">Slots: {{ listing.sharedSlots }}</span>
+                </div>
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Section -->
+      <div v-if="userProfile.services && userProfile.services.length > 0" class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+          Active Services ({{ userProfile.totalServices }})
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-for="service in userProfile.services" :key="service.id" 
+               class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <NuxtLink :to="`/services/${service.id}`">
+              <!-- Service Image -->
+              <div class="h-48 bg-gray-200 overflow-hidden">
+                <img v-if="service.imageUrl" 
+                     :src="service.imageUrl" 
+                     :alt="service.name"
+                     class="w-full h-full object-cover"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+                  No image
+                </div>
+              </div>
+
+              <!-- Service Details -->
+              <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="text-lg font-semibold text-gray-900">{{ service.name }}</h3>
+                  <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
+                    {{ service.serviceType }}
+                  </span>
+                </div>
+                
+                <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ service.description }}</p>
+                
+                <div class="flex justify-between items-center">
+                  <span class="text-xl font-bold text-purple-600">€{{ service.price }}</span>
+                  <span v-if="service.location" class="text-sm text-gray-500 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {{ service.location }}
+                  </span>
                 </div>
               </div>
             </NuxtLink>

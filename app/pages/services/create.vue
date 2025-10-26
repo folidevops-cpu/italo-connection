@@ -269,8 +269,14 @@ const locationData = ref<any>(null);
 const handleLocationSelected = (placeData: any) => {
   console.log('Location selected:', placeData);
   
-  // Store the formatted address
-  form.value.location = placeData.formattedAddress || '';
+  // Format location as "Town, Country"
+  const town = placeData.addressComponents?.locality || 
+               placeData.addressComponents?.administrative_area_level_2 || 
+               'Unknown'
+  const country = placeData.addressComponents?.country || 'Italy'
+  
+  // Store the formatted location
+  form.value.location = `${town}, ${country}`;
   
   // Optionally store additional location data (place ID, coordinates, etc.)
   locationData.value = {

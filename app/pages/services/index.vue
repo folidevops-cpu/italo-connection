@@ -117,7 +117,7 @@
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              {{ service.location }}
+              {{ formatLocation(service.location) }}
             </div>
 
             <div class="flex items-center justify-between">
@@ -213,6 +213,9 @@ useSeoMeta({
   title: "Services - ItaloConnection",
   description: "Find and connect with service providers in your community",
 });
+
+// Use location formatter
+const { formatLocation } = useLocationFormatter();
 
 const filters = ref({
   serviceType: "all",

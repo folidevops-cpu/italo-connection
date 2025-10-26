@@ -28,9 +28,19 @@
       :placeholder="placeholder"
       :required="required"
       :disabled="disabled"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-      :class="customClass"
+      :min="min"
+      :max="max"
+      :step="step"
+      :minlength="minlength"
+      :maxlength="maxlength"
+      :pattern="pattern"
+      @input="handleInput"
+      @blur="handleBlur"
+      class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+      :class="[
+        error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500',
+        customClass
+      ]"
     />
     <p v-if="hint" class="mt-1 text-sm text-gray-500">
       {{ hint }}
@@ -42,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
   modelValue: {
     type: [String, Number],
     default: ''
@@ -80,17 +90,51 @@ defineProps({
     default: ''
   },
   min: {
-  type: [String, Number],
-  default: undefined
-},
-step: {
-  type: [String, Number],
-  default: undefined
-}
+    type: [String, Number],
+    default: undefined
+  },
+  max: {
+    type: [String, Number],
+    default: undefined
+  },
+  step: {
+    type: [String, Number],
+    default: undefined
+  },
+  minlength: {
+    type: Number,
+    default: undefined
+  },
+  maxlength: {
+    type: Number,
+    default: undefined
+  },
+  pattern: {
+    type: String,
+    default: undefined
+  }
 })
 
-defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'blur'])
 
 // Generate unique ID for label association
 const inputId = computed(() => `input-${Math.random().toString(36).substr(2, 9)}`)
+
+// Handle input with validation
+const handleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  let value: string | number = target.value
+  
+  // Convert to number for number inputs
+  if (props.type === 'number' && value !== '') {
+    value = parseFloat(value)
+  }
+  
+  emit('update:modelValue', value)
+}
+
+// Handle blur event for validation
+const handleBlur = (event: Event) => {
+  emit('blur', event)
+}
 </script>

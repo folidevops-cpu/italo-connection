@@ -13,9 +13,13 @@
       :value="modelValue"
       :required="required"
       :disabled="disabled"
-      @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
-      class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-      :class="customClass"
+      @change="handleChange"
+      @blur="handleBlur"
+      class="w-full border rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+      :class="[
+        error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500',
+        customClass
+      ]"
     >
       <option v-if="placeholder" value="">{{ placeholder }}</option>
       <option
@@ -41,7 +45,7 @@ interface Option {
   label: string
 }
 
-defineProps({
+const props = defineProps({
   modelValue: {
     type: [String, Number],
     default: ''
@@ -81,8 +85,21 @@ defineProps({
   }
 })
 
-defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'blur', 'change'])
 
 // Generate unique ID for label association
 const selectId = computed(() => `select-${Math.random().toString(36).substr(2, 9)}`)
+
+// Handle change event
+const handleChange = (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const value = target.value
+  emit('update:modelValue', value)
+  emit('change', value)
+}
+
+// Handle blur event for validation
+const handleBlur = (event: Event) => {
+  emit('blur', event)
+}
 </script>

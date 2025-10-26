@@ -331,9 +331,9 @@ const handleImageSelect = async (event: Event) => {
       continue;
     }
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      uploadError.value = `${file.name} is too large. Maximum size is 5MB.`;
+    // Check file size (max 3MB)
+    if (file.size > 3 * 1024 * 1024) {
+      uploadError.value = `${file.name} is too large. Maximum size is 3MB.`;
       setTimeout(() => (uploadError.value = ""), 5000);
       continue;
     }

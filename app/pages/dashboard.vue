@@ -75,7 +75,10 @@
             <div class="ml-5 w-0 flex-1">
               <dl>
                 <dt class="text-sm font-medium text-gray-500 truncate">Total Listings</dt>
-                <dd class="text-lg font-medium text-gray-900">{{ stats.totalListings }}</dd>
+                <dd class="text-lg font-medium text-gray-900">
+                  <span v-if="loadingStats">...</span>
+                  <span v-else>{{ stats?.totalListings || 0 }}</span>
+                </dd>
               </dl>
             </div>
           </div>
@@ -93,7 +96,10 @@
             <div class="ml-5 w-0 flex-1">
               <dl>
                 <dt class="text-sm font-medium text-gray-500 truncate">Active Listings</dt>
-                <dd class="text-lg font-medium text-gray-900">{{ stats.activeListings }}</dd>
+                <dd class="text-lg font-medium text-gray-900">
+                  <span v-if="loadingStats">...</span>
+                  <span v-else>{{ stats?.activeListings || 0 }}</span>
+                </dd>
               </dl>
             </div>
           </div>
@@ -111,7 +117,10 @@
             <div class="ml-5 w-0 flex-1">
               <dl>
                 <dt class="text-sm font-medium text-gray-500 truncate">Notifications</dt>
-                <dd class="text-lg font-medium text-gray-900">{{ stats.unreadNotifications }}</dd>
+                <dd class="text-lg font-medium text-gray-900">
+                  <span v-if="loadingStats">...</span>
+                  <span v-else>{{ stats?.unreadNotifications || 0 }}</span>
+                </dd>
               </dl>
             </div>
           </div>
@@ -123,13 +132,16 @@
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">Profile Views</dt>
-                <dd class="text-lg font-medium text-gray-900">{{ stats.profileViews }}</dd>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Services</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  <span v-if="loadingStats">...</span>
+                  <span v-else>{{ stats?.totalServices || 0 }}</span>
+                </dd>
               </dl>
             </div>
           </div>
@@ -177,13 +189,42 @@
         <div class="p-6">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
           <div class="space-y-3">
-            <div v-if="recentActivity.length === 0" class="text-gray-500 text-sm">
+            <div v-if="loadingActivity" class="text-gray-500 text-sm">
+              Loading activity...
+            </div>
+            <div v-else-if="!recentActivity || recentActivity.length === 0" class="text-gray-500 text-sm">
               No recent activity
             </div>
-            <div v-else v-for="activity in recentActivity" :key="activity.id" class="flex items-center p-3 bg-gray-50 rounded-lg">
-              <div class="flex-1">
+            <div v-else v-for="activity in recentActivity" :key="activity.id" class="flex items-start p-3 rounded-lg transition-colors" :class="{
+              'bg-blue-50': activity.type === 'listing',
+              'bg-purple-50': activity.type === 'service',
+              'bg-yellow-50': activity.type === 'notification' && activity.status === 'unread',
+              'bg-gray-50': activity.type === 'notification' && activity.status === 'read'
+            }">
+              <div class="flex-shrink-0 mt-0.5">
+                <svg v-if="activity.type === 'listing'" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <svg v-else-if="activity.type === 'service'" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <svg v-else class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </div>
+              <div class="ml-3 flex-1">
                 <p class="text-sm font-medium text-gray-900">{{ activity.title }}</p>
-                <p class="text-xs text-gray-500">{{ activity.date }}</p>
+                <div class="flex items-center mt-1">
+                  <p class="text-xs text-gray-500">{{ activity.date }}</p>
+                  <span v-if="activity.status" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" :class="{
+                    'bg-green-100 text-green-800': activity.status === 'APPROVED' || activity.status === 'active',
+                    'bg-yellow-100 text-yellow-800': activity.status === 'PENDING' || activity.status === 'unread',
+                    'bg-gray-100 text-gray-800': activity.status === 'inactive' || activity.status === 'read',
+                    'bg-red-100 text-red-800': activity.status === 'REJECTED'
+                  }">
+                    {{ activity.status }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -245,6 +286,12 @@ onMounted(async () => {
   console.log('Dashboard mounted, refreshing user session...')
   await refreshUser()
   
+  // Load dashboard data
+  await Promise.all([
+    loadStats(),
+    loadActivity()
+  ])
+  
   // Check for verification success message
   if (route.query.verified === 'true') {
     console.log('Email verified! Session refreshed.')
@@ -262,28 +309,74 @@ watch(() => route.query.verified, async (newVal) => {
   if (newVal === 'true') {
     console.log('Email verified, refreshing session...')
     await refreshUser()
+    await loadStats()
   }
 })
 
-// Mock stats data - will be replaced with real API calls later
-const stats = ref({
-  totalListings: 0,
-  activeListings: 0,
-  unreadNotifications: 0,
-  profileViews: 0
-})
+// Loading states
+const loadingStats = ref(false)
+const loadingActivity = ref(false)
 
-// Mock recent activity - will be replaced with real API calls later
-const recentActivity = ref([
-  // Will be populated from API
-])
+// Stats data
+const stats = ref<{
+  totalListings: number
+  activeListings: number
+  totalServices: number
+  activeServices: number
+  unreadNotifications: number
+  profileViews: number
+} | null>(null)
 
-// TODO: Replace with real API calls using useFetch when backend is ready
-// const { data: dashboardStats } = await useFetch('/api/dashboard/stats', {
-//   default: () => ({ totalListings: 0, activeListings: 0, unreadNotifications: 0, profileViews: 0 })
-// })
+// Recent activity
+const recentActivity = ref<Array<{
+  id: string
+  type: string
+  title: string
+  status?: string
+  date: string
+  timestamp: string
+}>>([])
 
-// const { data: recentActivity } = await useFetch('/api/dashboard/activity', {
-//   default: () => []
-// })
+// Load stats from API
+const loadStats = async () => {
+  loadingStats.value = true
+  try {
+    const data = await $fetch('/api/dashboard/stats')
+    stats.value = data
+  } catch (error) {
+    console.error('Failed to load dashboard stats:', error)
+    // Set default values on error
+    stats.value = {
+      totalListings: 0,
+      activeListings: 0,
+      totalServices: 0,
+      activeServices: 0,
+      unreadNotifications: 0,
+      profileViews: 0
+    }
+  } finally {
+    loadingStats.value = false
+  }
+}
+
+// Load activity from API
+const loadActivity = async () => {
+  loadingActivity.value = true
+  try {
+    const data = await $fetch('/api/dashboard/activity') as { activity: Array<{
+      id: string
+      type: string
+      title: string
+      status?: string
+      date: string
+      timestamp: string
+    }> }
+    recentActivity.value = data.activity
+  } catch (error) {
+    console.error('Failed to load recent activity:', error)
+    recentActivity.value = []
+  } finally {
+    loadingActivity.value = false
+  }
+}
 </script>

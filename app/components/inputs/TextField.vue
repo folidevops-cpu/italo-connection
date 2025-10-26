@@ -1,13 +1,26 @@
 <template>
   <div>
-    <label 
+
+    <div v-if="$slots.label || label" class="mb-2">
+      <slot name="label">
+        <label 
+          :for="inputId" 
+          class="block text-sm font-medium text-gray-700"
+        >
+          {{ label }}
+          <span v-if="required" class="text-red-500">*</span>
+        </label>
+      </slot>
+    </div>
+    
+    <!-- <label 
       v-if="label" 
       :for="inputId" 
       class="block text-sm font-medium text-gray-700 mb-2"
     >
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
-    </label>
+    </label> -->
     <input
       :id="inputId"
       :type="type"

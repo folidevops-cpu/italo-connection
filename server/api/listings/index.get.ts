@@ -1,5 +1,8 @@
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
 export default defineEventHandler(async (event) => {
-  const prisma = usePrisma()
   const query = getQuery(event)
   const page = parseInt(query.page as string) || 1
   const limit = parseInt(query.limit as string) || 9

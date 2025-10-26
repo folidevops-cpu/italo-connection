@@ -73,7 +73,10 @@ export default defineEventHandler(async (event) => {
       data: {
         userId: userData.id,
         action: 'ACCOUNT_DELETED',
-        details: `User deleted their account. Reason: ${reason || 'Not specified'}`
+        meta: {
+          reason: reason || 'Not specified',
+          deletedAt: new Date().toISOString()
+        }
       }
     })
 

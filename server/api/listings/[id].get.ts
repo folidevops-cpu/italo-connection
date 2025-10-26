@@ -9,7 +9,8 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const prisma = usePrisma()
+    const { PrismaClient } = await import('@prisma/client')
+    const prisma = new PrismaClient()
 
     // Fetch listing with media and owner info
     const listing = await prisma.listing.findFirst({
@@ -40,6 +41,8 @@ export default defineEventHandler(async (event) => {
         }
       }
     })
+
+    await prisma.$disconnect()
 
     if (!listing) {
       throw createError({

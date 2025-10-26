@@ -2,23 +2,30 @@
   <div>
     <label 
       v-if="label" 
-      :for="inputId" 
+      :for="selectId" 
       class="block text-sm font-medium text-gray-700 mb-2"
     >
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
-    <input
-      :id="inputId"
-      :type="type"
+    <select
+      :id="selectId"
       :value="modelValue"
-      :placeholder="placeholder"
       :required="required"
       :disabled="disabled"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+      @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
+      class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
       :class="customClass"
-    />
+    >
+      <option v-if="placeholder" value="">{{ placeholder }}</option>
+      <option
+        v-for="option in options"
+        :key="option.value"
+        :value="option.value"
+      >
+        {{ option.label }}
+      </option>
+    </select>
     <p v-if="hint" class="mt-1 text-sm text-gray-500">
       {{ hint }}
     </p>
@@ -29,6 +36,11 @@
 </template>
 
 <script setup lang="ts">
+interface Option {
+  value: string | number
+  label: string
+}
+
 defineProps({
   modelValue: {
     type: [String, Number],
@@ -38,9 +50,10 @@ defineProps({
     type: String,
     default: ''
   },
-  type: {
-    type: String,
-    default: 'text'
+  options: {
+    type: Array as () => Option[],
+    required: true,
+    default: () => []
   },
   placeholder: {
     type: String,
@@ -65,19 +78,11 @@ defineProps({
   customClass: {
     type: String,
     default: ''
-  },
-  min: {
-  type: [String, Number],
-  default: undefined
-},
-step: {
-  type: [String, Number],
-  default: undefined
-}
+  }
 })
 
 defineEmits(['update:modelValue'])
 
 // Generate unique ID for label association
-const inputId = computed(() => `input-${Math.random().toString(36).substr(2, 9)}`)
+const selectId = computed(() => `select-${Math.random().toString(36).substr(2, 9)}`)
 </script>

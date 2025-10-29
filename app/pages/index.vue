@@ -270,6 +270,51 @@ const handleSearch = () => {
 // Geolocation
 const userLocation = ref<{ latitude: number; longitude: number } | null>(null)
 
+// Fetch latest services with reactive location
+const servicesQuery = computed(() => {
+  const query: any = {
+    page: 1,
+    limit: 4,
+    status: 'APPROVED'
+  }
+  
+  if (userLocation.value) {
+    query.userLat = userLocation.value.latitude
+    query.userLon = userLocation.value.longitude
+  }
+  
+  return query
+})
+
+const { data: servicesData, pending: servicesPending, refresh: refreshServices } = await useFetch('/api/services', {
+  query: servicesQuery,
+  default: () => ({ services: [] })
+})
+
+const latestServices = computed(() => servicesData.value?.services || [])
+
+// Fetch latest listings with reactive location
+const listingsQuery = computed(() => {
+  const query: any = {
+    page: 1,
+    limit: 4
+  }
+  
+  if (userLocation.value) {
+    query.userLat = userLocation.value.latitude
+    query.userLon = userLocation.value.longitude
+  }
+  
+  return query
+})
+
+const { data: listingsData, pending: listingsPending, refresh: refreshListings } = await useFetch('/api/listings', {
+  query: listingsQuery,
+  default: () => ({ listings: [] })
+})
+
+const latestListings = computed(() => listingsData.value?.listings || [])
+
 onMounted(() => {
   // Try to get user's location
   if (navigator.geolocation) {
@@ -279,6 +324,9 @@ onMounted(() => {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude
         }
+        // Refresh data with new location
+        refreshServices()
+        refreshListings()
       },
       (error) => {
         console.log('Geolocation not available:', error.message)
@@ -287,29 +335,6 @@ onMounted(() => {
     )
   }
 })
-
-// Fetch latest services
-const { data: servicesData, pending: servicesPending } = await useFetch('/api/services', {
-  query: {
-    page: 1,
-    limit: 4,
-    status: 'APPROVED'
-  },
-  default: () => ({ services: [] })
-})
-
-const latestServices = computed(() => servicesData.value?.services || [])
-
-// Fetch latest listings
-const { data: listingsData, pending: listingsPending } = await useFetch('/api/listings', {
-  query: {
-    page: 1,
-    limit: 4
-  },
-  default: () => ({ listings: [] })
-})
-
-const latestListings = computed(() => listingsData.value?.listings || [])
 
 // Format listing type
 const formatListingType = (type: string) => {

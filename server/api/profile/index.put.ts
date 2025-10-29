@@ -30,6 +30,8 @@ export default defineEventHandler(async (event) => {
     province,
     cap,
     googlePlaceId,
+    latitude,
+    longitude,
     
     // Contact Information
     phone,
@@ -140,6 +142,8 @@ export default defineEventHandler(async (event) => {
       province,
       cap,
       googlePlaceId,
+      latitude: latitude !== undefined ? parseFloat(latitude) : undefined,
+      longitude: longitude !== undefined ? parseFloat(longitude) : undefined,
       phone,
       whatsapp,
       facebookUrl,

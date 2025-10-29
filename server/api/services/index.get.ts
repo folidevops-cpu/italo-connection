@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { sortByDistance } from '../../utils/distance'
 
 const prisma = new PrismaClient()
 
@@ -15,6 +16,8 @@ export default defineEventHandler(async (event) => {
   const pageNum = parseInt(page as string)
   const limitNum = parseInt(limit as string)
   const skip = (pageNum - 1) * limitNum
+  const userLat = query.userLat ? parseFloat(query.userLat as string) : undefined
+  const userLon = query.userLon ? parseFloat(query.userLon as string) : undefined
 
   try {
     const where: any = {
@@ -38,8 +41,13 @@ export default defineEventHandler(async (event) => {
       ]
     }
 
-    const [services, total] = await Promise.all([
-      prisma.service.findMany({
+    let services
+    let total
+    
+    // If user location is provided, sort by distance
+    if (userLat && userLon) {
+      // Fetch all services matching the filter
+      const allServices = await prisma.service.findMany({
         where,
         include: {
           serviceType: true,
@@ -58,15 +66,47 @@ export default defineEventHandler(async (event) => {
               order: 'asc'
             }
           }
-        },
-        orderBy: {
-          createdAt: 'desc'
-        },
-        skip,
-        take: limitNum
-      }),
-      prisma.service.count({ where })
-    ])
+        }
+      })
+      
+      // Sort by distance
+      const sortedServices = sortByDistance(allServices, userLat, userLon)
+      
+      // Apply pagination after sorting
+      services = sortedServices.slice(skip, skip + limitNum)
+      total = sortedServices.length
+    } else {
+      // Normal query without location sorting
+      [services, total] = await Promise.all([
+        prisma.service.findMany({
+          where,
+          include: {
+            serviceType: true,
+            owner: {
+              include: {
+                profile: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true
+                  }
+                }
+              }
+            },
+            media: {
+              orderBy: {
+                order: 'asc'
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          skip,
+          take: limitNum
+        }),
+        prisma.service.count({ where })
+      ])
+    }
 
     return {
       services,

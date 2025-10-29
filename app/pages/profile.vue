@@ -770,6 +770,8 @@ const form = ref({
   province: "",
   cap: "",
   googlePlaceId: "",
+  latitude: null as number | null,
+  longitude: null as number | null,
   facebookUrl: "",
   instagramUrl: "",
   tiktokUrl: "",
@@ -803,6 +805,8 @@ watch(
         province: p.province || "",
         cap: p.cap || "",
         googlePlaceId: p.googlePlaceId || "",
+        latitude: p.latitude || null,
+        longitude: p.longitude || null,
         facebookUrl: p.facebookUrl || "",
         instagramUrl: p.instagramUrl || "",
         tiktokUrl: p.tiktokUrl || "",
@@ -859,7 +863,7 @@ const addressSearchText = ref("");
 const handlePlaceSelected = (placeData: any) => {
   console.log("Place selected:", placeData);
 
-  const { addressComponents, placeId } = placeData;
+  const { addressComponents, placeId, geometry } = placeData;
 
   // Auto-fill the form fields
   if (addressComponents.route) {
@@ -884,6 +888,12 @@ const handlePlaceSelected = (placeData: any) => {
 
   if (placeId) {
     form.value.googlePlaceId = placeId;
+  }
+
+  // Capture coordinates for proximity search
+  if (geometry && geometry.lat && geometry.lng) {
+    form.value.latitude = geometry.lat;
+    form.value.longitude = geometry.lng;
   }
 
   // Show success message

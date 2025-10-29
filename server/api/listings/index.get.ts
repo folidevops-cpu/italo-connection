@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { sortByDistance } from '../../utils/distance'
 
 const prisma = new PrismaClient()
 
@@ -9,6 +10,8 @@ export default defineEventHandler(async (event) => {
   const type = query.type as string
   const search = query.search as string
   const maxPrice = query.maxPrice ? parseFloat(query.maxPrice as string) : undefined
+  const userLat = query.userLat ? parseFloat(query.userLat as string) : undefined
+  const userLon = query.userLon ? parseFloat(query.userLon as string) : undefined
 
   try {
     const where: any = {
@@ -27,12 +30,15 @@ export default defineEventHandler(async (event) => {
     }
     if (maxPrice) where.price = { lte: maxPrice }
     
-    const [listings, total] = await Promise.all([
-      prisma.listing.findMany({
+    // If user location is provided, fetch all listings and sort by distance
+    // Otherwise, use normal pagination
+    let listings
+    let total
+    
+    if (userLat && userLon) {
+      // Fetch all listings matching the filter (no pagination yet)
+      const allListings = await prisma.listing.findMany({
         where,
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
         include: {
           owner: {
             include: { profile: true }
@@ -43,9 +49,36 @@ export default defineEventHandler(async (event) => {
             }
           }
         }
-      }),
-      prisma.listing.count({ where })
-    ])
+      })
+      
+      // Sort by distance
+      const sortedListings = sortByDistance(allListings, userLat, userLon)
+      
+      // Apply pagination after sorting
+      listings = sortedListings.slice((page - 1) * limit, page * limit)
+      total = sortedListings.length
+    } else {
+      // Normal query without location sorting
+      [listings, total] = await Promise.all([
+        prisma.listing.findMany({
+          where,
+          skip: (page - 1) * limit,
+          take: limit,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            owner: {
+              include: { profile: true }
+            },
+            media: {
+              orderBy: {
+                order: 'asc'
+              }
+            }
+          }
+        }),
+        prisma.listing.count({ where })
+      ])
+    }
 
     const totalPages = Math.ceil(total / limit)
 

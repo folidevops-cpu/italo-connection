@@ -64,6 +64,12 @@ export default defineEventHandler(async (event) => {
     const { PrismaClient } = await import('@prisma/client')
     const prisma = new PrismaClient()
 
+    // Get user's profile to get coordinates
+    const userProfile = await prisma.profile.findUnique({
+      where: { userId: userData.id },
+      select: { latitude: true, longitude: true }
+    })
+
     // Create listing with images in a transaction
     const listing = await prisma.listing.create({
       data: {
@@ -73,6 +79,8 @@ export default defineEventHandler(async (event) => {
         description,
         price,
         status: 'PENDING',
+        latitude: userProfile?.latitude || null,
+        longitude: userProfile?.longitude || null,
         availableFrom: availableFrom ? new Date(availableFrom) : null,
         capacity: capacity || null,
         sharedSlots: sharedSlots || null,

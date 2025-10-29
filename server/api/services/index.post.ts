@@ -40,6 +40,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Get user's profile to get coordinates
+    const userProfile = await prisma.profile.findUnique({
+      where: { userId: (user as any).id },
+      select: { latitude: true, longitude: true }
+    })
+
     // Create service with media
     const service = await prisma.service.create({
       data: {
@@ -47,6 +53,8 @@ export default defineEventHandler(async (event) => {
         description,
         serviceTypeId,
         location,
+        latitude: userProfile?.latitude || null,
+        longitude: userProfile?.longitude || null,
         price: parseFloat(price),
         ownerId: (user as any).id,
         status: 'APPROVED',

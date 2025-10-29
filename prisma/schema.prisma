@@ -59,6 +59,8 @@ model Profile {
   province    String? // Italian provinces only
   cap         String? // Italian postal code (Codice di Avviamento Postale)
   googlePlaceId String? // For Google Places API integration
+  latitude    Float?   // Geographic coordinates for proximity search
+  longitude   Float?
   
   // Social Media Links
   facebookUrl  String?
@@ -89,6 +91,8 @@ model Listing {
   availableFrom DateTime?
   capacity      Int?
   sharedSlots   Int?
+  latitude      Float?    // Geographic coordinates from owner's profile
+  longitude     Float?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -212,6 +216,8 @@ model Service {
   name          String
   description   String
   location      String
+  latitude      Float?      // Geographic coordinates for proximity search
+  longitude     Float?
   price         Decimal     @db.Decimal(10, 2)
   status        String      @default("PENDING") // PENDING, APPROVED, REJECTED
   createdAt     DateTime    @default(now())

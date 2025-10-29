@@ -1,17 +1,17 @@
--- DropIndex
-DROP INDEX "public"."listings_description_gin_idx";
+-- DropIndex (only if they exist)
+DROP INDEX IF EXISTS "public"."listings_description_gin_idx";
 
 -- DropIndex
-DROP INDEX "public"."listings_title_gin_idx";
+DROP INDEX IF EXISTS "public"."listings_title_gin_idx";
 
 -- DropIndex
-DROP INDEX "public"."services_description_gin_idx";
+DROP INDEX IF EXISTS "public"."services_description_gin_idx";
 
 -- DropIndex
-DROP INDEX "public"."services_location_gin_idx";
+DROP INDEX IF EXISTS "public"."services_location_gin_idx";
 
 -- DropIndex
-DROP INDEX "public"."services_name_gin_idx";
+DROP INDEX IF EXISTS "public"."services_name_gin_idx";
 
 -- CreateIndex
 CREATE INDEX "listings_ownerId_idx" ON "listings"("ownerId");

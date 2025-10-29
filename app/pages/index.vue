@@ -316,10 +316,12 @@ const { data: listingsData, pending: listingsPending, refresh: refreshListings }
 const latestListings = computed(() => listingsData.value?.listings || [])
 
 onMounted(() => {
-  // Try to get user's location
+  // Automatically request location when page loads
   if (navigator.geolocation) {
+    console.log('Requesting geolocation...')
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        console.log('Geolocation granted:', position.coords)
         userLocation.value = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude
@@ -329,8 +331,13 @@ onMounted(() => {
         refreshListings()
       },
       (error) => {
-        console.log('Geolocation not available:', error.message)
+        console.log('Geolocation error:', error.message, error.code)
         // Continue without location - will show latest items instead
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 0
       }
     )
   }

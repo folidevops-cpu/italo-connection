@@ -94,6 +94,10 @@ model Listing {
   owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   media         Media[]
 
+  @@index([ownerId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
   @@map("listings")
 }
 
@@ -216,6 +220,10 @@ model Service {
   serviceType   ServiceType @relation(fields: [serviceTypeId], references: [id], onDelete: Restrict)
   media         ServiceMedia[]
 
+  @@index([ownerId])
+  @@index([status])
+  @@index([serviceTypeId])
+  @@index([createdAt])
   @@map("services")
 }
 

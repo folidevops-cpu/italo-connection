@@ -8,7 +8,12 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "db:migrate": "npx prisma migrate dev",
+    "db:push": "npx prisma db push",
+    "db:generate": "npx prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "npx prisma migrate reset && npm run db:seed"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

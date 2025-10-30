@@ -115,7 +115,7 @@
                   to="/services/my" 
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  {{ $t('nav.yourServices') }}
+                  {{ $t('nav.myServices') }}
                 </NuxtLink>
                 <button 
                   @click="handleLogout" 
@@ -139,7 +139,7 @@
               to="/register" 
               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
             >
-              {{ $t('nav.register') }}
+              {{ $t('nav.signUp') }}
             </NuxtLink>
             
             <!-- Language Switcher -->

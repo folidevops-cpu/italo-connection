@@ -35,7 +35,7 @@
               type="submit"
               class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
             >
-              {{ $t('hero.searchButton') }}
+              {{ $t('hero.search') }}
             </button>
           </form>
         </div>

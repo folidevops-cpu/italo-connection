@@ -1,0 +1,51 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "listings": "Parcourir les annonces",
+    "services": "Services",
+    "login": "Connexion",
+    "signUp": "S'inscrire",
+    "signOut": "Déconnexion",
+    "dashboard": "Tableau de bord",
+    "createListing": "Créer une annonce",
+    "yourListings": "Vos annonces",
+    "myServices": "Mes services",
+    "offerService": "Proposer un service",
+    "profile": "Profil",
+    "admin": "Admin"
+  },
+  "hero": {
+    "title": "Bienvenue sur ItaloConnection",
+    "subtitle": "Votre marketplace pour acheter, vendre et trouver des chambres à louer",
+    "searchPlaceholder": "Rechercher des articles, chambres ou services...",
+    "search": "Rechercher",
+    "browseListings": "Parcourir les annonces",
+    "getStarted": "Commencer"
+  },
+  "home": {
+    "latestServices": "Derniers services",
+    "servicesNearYou": "Services près de chez vous",
+    "recentlyAddedServices": "Services récemment ajoutés",
+    "latestListings": "Dernières annonces",
+    "listingsNearYou": "Annonces près de chez vous",
+    "recentlyAddedListings": "Annonces récemment ajoutées",
+    "viewAll": "Voir tout",
+    "noServices": "Aucun service disponible pour le moment",
+    "noListings": "Aucune annonce disponible pour le moment"
+  },
+  "listing": {
+    "type": {
+      "item": "Article",
+      "room_single": "Chambre individuelle",
+      "room_shared": "Chambre partagée"
+    },
+    "perMonth": "/mois"
+  },
+  "common": {
+    "location": "Emplacement",
+    "price": "Prix",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  }
+}

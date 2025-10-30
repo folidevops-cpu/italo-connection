@@ -11,8 +11,39 @@ export default defineNuxtConfig({
   // Modules Configuration
   modules: [
     'nuxt-auth-utils',
-    '@prisma/nuxt'
+    '@prisma/nuxt',
+    '@nuxtjs/i18n',
   ],
+  
+  // i18n Configuration
+  i18n: {
+    locales: [
+      {
+        code: 'en',
+        name: 'English',
+        file: 'en.json'
+      },
+      {
+        code: 'fr',
+        name: 'Français',
+        file: 'fr.json'
+      },
+      {
+        code: 'it',
+        name: 'Italiano',
+        file: 'it.json'
+      }
+    ],
+    defaultLocale: 'en',
+    lazy: true,
+    langDir: 'locales/',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root',
+    }
+  },
   
   // Runtime Configuration
   runtimeConfig: {

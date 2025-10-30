@@ -15,14 +15,14 @@
             to="/listings" 
             class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
           >
-            Browse Listings
+            {{ $t('nav.listings') }}
           </NuxtLink>
           
           <NuxtLink 
             to="/services" 
             class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
           >
-            Services
+            {{ $t('nav.services') }}
           </NuxtLink>
           
           <template v-if="loggedIn">
@@ -31,20 +31,20 @@
               to="/dashboard" 
               class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
-              Dashboard
+              {{ $t('nav.dashboard') }}
             </NuxtLink>
-            <NuxtLink 
+            <!-- <NuxtLink 
               to="/listings/create" 
               class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
-              Create Listing
-            </NuxtLink>
-            <NuxtLink 
+              {{ $t('nav.createListing') }}
+            </NuxtLink> -->
+            <!-- <NuxtLink 
               to="/services/create" 
               class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
-              Offer Service
-            </NuxtLink>
+              {{ $t('nav.offerService') }}
+            </NuxtLink> -->
             <!-- <NuxtLink 
               to="/profile" 
               class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
@@ -63,6 +63,9 @@
             
             <!-- Notification Bell Component -->
             <NotificationBell />
+            
+            <!-- Language Switcher -->
+            <LanguageSwitcher />
             
             <!-- User menu -->
             <div class="relative">
@@ -100,25 +103,25 @@
                   to="/profile" 
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  Your Profile
+                  {{ $t('nav.profile') }}
                 </NuxtLink>
                 <NuxtLink 
                   to="/listings/my" 
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  Your Listings
+                  {{ $t('nav.yourListings') }}
                 </NuxtLink>
                 <NuxtLink 
                   to="/services/my" 
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  My Services
+                  {{ $t('nav.yourServices') }}
                 </NuxtLink>
                 <button 
                   @click="handleLogout" 
                   class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  Sign out
+                  {{ $t('nav.logout') }}
                 </button>
               </div>
             </div>
@@ -130,14 +133,17 @@
               to="/login" 
               class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
-              Login
+              {{ $t('nav.login') }}
             </NuxtLink>
             <NuxtLink 
               to="/register" 
               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
             >
-              Sign Up
+              {{ $t('nav.register') }}
             </NuxtLink>
+            
+            <!-- Language Switcher -->
+            <LanguageSwitcher />
           </template>
         </div>
         
@@ -174,14 +180,14 @@
             to="/listings" 
             class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
           >
-            Browse Listings
+            {{ $t('nav.listings') }}
           </NuxtLink>
           
           <NuxtLink 
             to="/services" 
             class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
           >
-            Services
+            {{ $t('nav.services') }}
           </NuxtLink>
           
           <template v-if="loggedIn">
@@ -189,56 +195,56 @@
               to="/dashboard" 
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Dashboard
+              {{ $t('nav.dashboard') }}
             </NuxtLink>
             <NuxtLink 
               to="/listings/create" 
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Create Listing
+              {{ $t('nav.createListing') }}
             </NuxtLink>
             <NuxtLink 
               to="/services/create" 
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Offer Service
+              {{ $t('nav.offerService') }}
             </NuxtLink>
             <NuxtLink 
               to="/listings/my" 
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Your Listings
+              {{ $t('nav.yourListings') }}
             </NuxtLink>
             <NuxtLink 
               to="/services/my" 
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              My Services
+              {{ $t('nav.myServices') }}
             </NuxtLink>
             <NuxtLink 
               to="/profile" 
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Profile
+              {{ $t('nav.profile') }}
             </NuxtLink>
             <NuxtLink 
               to="/notifications" 
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Notifications
+              {{ $t('nav.notifications') }}
             </NuxtLink>
             <NuxtLink 
               v-if="isAdmin"
               to="/admin" 
               class="block text-purple-600 hover:text-purple-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Admin
+              {{ $t('nav.admin') }}
             </NuxtLink>
             <button 
               @click="handleLogout" 
               class="block w-full text-left text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Sign out
+              {{ $t('nav.signOut') }}
             </button>
           </template>
           
@@ -247,15 +253,20 @@
               to="/login" 
               class="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
-              Login
+              {{ $t('nav.login') }}
             </NuxtLink>
             <NuxtLink 
               to="/register" 
               class="block bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-base font-medium"
             >
-              Sign Up
+              {{ $t('nav.signUp') }}
             </NuxtLink>
           </template>
+          
+          <!-- Language Switcher in mobile menu -->
+          <div class="px-3 py-2">
+            <LanguageSwitcher />
+          </div>
         </div>
       </div>
     </div>

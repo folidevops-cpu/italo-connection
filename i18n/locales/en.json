@@ -1,0 +1,51 @@
+{
+  "nav": {
+    "home": "Home",
+    "listings": "Browse Listings",
+    "services": "Services",
+    "login": "Login",
+    "signUp": "Sign Up",
+    "signOut": "Sign out",
+    "dashboard": "Dashboard",
+    "createListing": "Create Listing",
+    "yourListings": "Your Listings",
+    "myServices": "My Services",
+    "offerService": "Offer Service",
+    "profile": "Profile",
+    "admin": "Admin"
+  },
+  "hero": {
+    "title": "Welcome to ItaloConnection",
+    "subtitle": "Your marketplace for buying, selling, and finding rooms to rent",
+    "searchPlaceholder": "Search for items, rooms, or services...",
+    "search": "Search",
+    "browseListings": "Browse Listings",
+    "getStarted": "Get Started"
+  },
+  "home": {
+    "latestServices": "Latest Services",
+    "servicesNearYou": "Services near you",
+    "recentlyAddedServices": "Recently added services",
+    "latestListings": "Latest Listings",
+    "listingsNearYou": "Listings near you",
+    "recentlyAddedListings": "Recently added listings",
+    "viewAll": "View all",
+    "noServices": "No services available yet",
+    "noListings": "No listings available yet"
+  },
+  "listing": {
+    "type": {
+      "item": "Item",
+      "room_single": "Single Room",
+      "room_shared": "Shared Room"
+    },
+    "perMonth": "/month"
+  },
+  "common": {
+    "location": "Location",
+    "price": "Price",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  }
+}

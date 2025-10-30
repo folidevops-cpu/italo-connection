@@ -1,0 +1,51 @@
+{
+  "nav": {
+    "home": "Home",
+    "listings": "Sfoglia annunci",
+    "services": "Servizi",
+    "login": "Accedi",
+    "signUp": "Registrati",
+    "signOut": "Esci",
+    "dashboard": "Dashboard",
+    "createListing": "Crea Annuncio",
+    "yourListings": "I tuoi annunci",
+    "myServices": "I miei servizi",
+    "offerService": "Offri un servizio",
+    "profile": "Profilo",
+    "admin": "Admin"
+  },
+  "hero": {
+    "title": "Benvenuto su ItaloConnection",
+    "subtitle": "Il tuo marketplace per comprare, vendere e trovare stanze in affitto",
+    "searchPlaceholder": "Cerca articoli, stanze o servizi...",
+    "search": "Cerca",
+    "browseListings": "Sfoglia annunci",
+    "getStarted": "Inizia"
+  },
+  "home": {
+    "latestServices": "Ultimi servizi",
+    "servicesNearYou": "Servizi vicino a te",
+    "recentlyAddedServices": "Servizi aggiunti di recente",
+    "latestListings": "Ultimi annunci",
+    "listingsNearYou": "Annunci vicino a te",
+    "recentlyAddedListings": "Annunci aggiunti di recente",
+    "viewAll": "Vedi tutti",
+    "noServices": "Nessun servizio disponibile al momento",
+    "noListings": "Nessun annuncio disponibile al momento"
+  },
+  "listing": {
+    "type": {
+      "item": "Articolo",
+      "room_single": "Camera singola",
+      "room_shared": "Camera condivisa"
+    },
+    "perMonth": "/mese"
+  },
+  "common": {
+    "location": "Posizione",
+    "price": "Prezzo",
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo"
+  }
+}

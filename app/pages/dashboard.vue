@@ -167,6 +167,19 @@
               <span v-if="!canCreateListings" class="ml-2 text-xs text-gray-500">(Verification required)</span>
             </NuxtLink>
 
+            <NuxtLink 
+              to="/services/create" 
+              class="flex items-center p-3 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors"
+              :class="{ 'opacity-50 pointer-events-none': !canCreateServices }"
+            >
+              <svg class="h-5 w-5 text-amber-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span class="text-amber-700 font-medium">New Service</span>
+              <span v-if="!canCreateServices" class="ml-2 text-xs text-gray-500">(Verification required)</span>
+            </NuxtLink>
+
+
             <NuxtLink to="/profile" class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
               <svg class="h-5 w-5 text-green-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -182,6 +195,8 @@
             </NuxtLink>
           </div>
         </div>
+
+        
       </div>
 
       <!-- Recent Activity -->
@@ -247,7 +262,7 @@ useSeoMeta({
 })
 
 // Use the global auth state composable
-const { user, refreshUser, isEmailVerified, canCreateListings, userName } = useAuthState()
+const { user, refreshUser, isEmailVerified, canCreateServices, canCreateListings, userName } = useAuthState()
 
 // Get route for query params
 const route = useRoute()

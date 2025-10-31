@@ -33,7 +33,13 @@ export const useAuthState = () => {
   const canCreateListings = computed(() => {
     return isEmailVerified.value
   })
-  
+
+ 
+  // Check if user can create services (only email required)
+  const canCreateServices = computed(() => {
+    return isEmailVerified.value
+  })
+
   // Get user name
   const userName = computed(() => {
     if (!user.value) return ''
@@ -48,6 +54,7 @@ export const useAuthState = () => {
     isEmailVerified,
     isPhoneVerified,
     canCreateListings,
+    canCreateServices,
     userName
   }
 }

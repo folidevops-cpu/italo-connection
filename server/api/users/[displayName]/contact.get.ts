@@ -25,8 +25,7 @@ export default defineEventHandler(async (event) => {
         user: {
           select: {
             id: true,
-            emailVerified: true,
-            phoneVerified: true
+            emailVerified: true
           }
         }
       }

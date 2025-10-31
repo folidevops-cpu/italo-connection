@@ -4,13 +4,13 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 export default defineEventHandler(async (event) => {
-  const { email, password, phone, displayName } = await readBody(event)
+  const { email, password, displayName } = await readBody(event)
   
   // Validate required fields
-  if (!email || !password || !phone) {
+  if (!email || !password) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Email, password, and phone are required'
+      statusMessage: 'Email and password are required'
     })
   }
   
@@ -35,17 +35,14 @@ export default defineEventHandler(async (event) => {
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [
-          { email },
-          { phone }
-        ]
+        email
       }
     })
 
     if (existingUser) {
       throw createError({
         statusCode: 409,
-        statusMessage: 'User with this email or phone already exists'
+        statusMessage: 'User with this email already exists'
       })
     }
 
@@ -73,7 +70,6 @@ export default defineEventHandler(async (event) => {
     const user = await prisma.user.create({
       data: {
         email,
-        phone,
         passwordHash,
         profile: {
           create: {
@@ -90,9 +86,7 @@ export default defineEventHandler(async (event) => {
     const userResponse = {
       id: user.id,
       email: user.email,
-      phone: user.phone,
       emailVerified: user.emailVerified,
-      phoneVerified: user.phoneVerified,
       role: user.role,
       profile: {
         displayName: user.profile?.displayName || email.split('@')[0]
@@ -107,8 +101,6 @@ export default defineEventHandler(async (event) => {
         role: user.role,
         displayName: user.profile?.displayName || email.split('@')[0],
         emailVerified: user.emailVerified,
-        phoneVerified: user.phoneVerified,
-        phone: user.phone,
         avatarUrl: user.profile?.avatarUrl || null,
         provider: 'email',
         suspended: false,
@@ -139,7 +131,7 @@ export default defineEventHandler(async (event) => {
       
       throw createError({
         statusCode: 409,
-        statusMessage: 'User with this email or phone already exists'
+        statusMessage: 'User with this email already exists'
       })
     }
     

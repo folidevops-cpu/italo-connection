@@ -1,22 +1,8 @@
-export default defineEventHandler(async (event) => {
-  // Check authentication using nuxt-auth-utils
-  const { user } = await getUserSession(event)
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized'
-    })
-  }
+import { requireEmailVerification } from '../../utils/auth'
 
-  const userData = user as any
-  
-  // Check if user email is verified
-  if (!userData.emailVerified) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Email verification required to create listings'
-    })
-  }
+export default defineEventHandler(async (event) => {
+  // Check authentication and email verification
+  const userData = await requireEmailVerification(event)
 
   const body = await readBody(event)
   const { type, title, description, price, location, availableFrom, capacity, sharedSlots, images } = body

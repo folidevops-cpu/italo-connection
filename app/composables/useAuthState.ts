@@ -24,11 +24,6 @@ export const useAuthState = () => {
     return (user.value as any)?.emailVerified === true
   })
   
-  // Check if phone is verified
-  const isPhoneVerified = computed(() => {
-    return (user.value as any)?.phoneVerified === true
-  })
-  
   // Check if user can create listings (only email required)
   const canCreateListings = computed(() => {
     return isEmailVerified.value
@@ -52,7 +47,6 @@ export const useAuthState = () => {
     loggedIn,
     refreshUser,
     isEmailVerified,
-    isPhoneVerified,
     canCreateListings,
     canCreateServices,
     userName

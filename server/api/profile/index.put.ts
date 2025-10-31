@@ -160,9 +160,7 @@ export default defineEventHandler(async (event) => {
         user: {
           select: {
             email: true,
-            phone: true,
             emailVerified: true,
-            phoneVerified: true,
             role: true
           }
         }

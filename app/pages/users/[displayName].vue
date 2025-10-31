@@ -37,9 +37,6 @@
                 <span v-if="userProfile.emailVerified" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   ✓ Email Verified
                 </span>
-                <span v-if="userProfile.phoneVerified" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  ✓ Phone Verified
-                </span>
               </div>
             </div>
 
@@ -486,10 +483,13 @@ const fetchProfile = async () => {
     loading.value = true
     error.value = ''
     
+    console.log('Fetching profile for:', displayName)
     const response = await $fetch(`/api/users/${displayName}`)
+    console.log('Profile response:', response)
     userProfile.value = response
   } catch (err: any) {
-    error.value = err.data?.statusMessage || 'Failed to load user profile'
+    console.error('Profile fetch error:', err)
+    error.value = err.data?.statusMessage || err.message || 'Failed to load user profile'
   } finally {
     loading.value = false
   }

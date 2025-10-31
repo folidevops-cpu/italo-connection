@@ -3,7 +3,6 @@ import { sendNewNotificationEmail } from './email'
 
 export type NotificationType = 
   | 'EMAIL_VERIFIED'
-  | 'PHONE_VERIFIED'
   | 'LISTING_APPROVED'
   | 'LISTING_REJECTED'
   | 'LISTING_DELETED'
@@ -121,9 +120,6 @@ export const getNotificationMessage = (
     case 'EMAIL_VERIFIED':
       return '🎉 Your email has been verified successfully!'
     
-    case 'PHONE_VERIFIED':
-      return '🎉 Your phone number has been verified successfully!'
-    
     case 'LISTING_APPROVED':
       return `✅ Your listing "${payload.listingTitle}" has been approved and is now live!`
     
@@ -149,7 +145,7 @@ export const getNotificationMessage = (
       return `📢 Admin: ${payload.message}`
     
     case 'VERIFICATION_REMINDER':
-      return `⏰ Reminder: Please verify your ${payload.verificationType} to start posting listings`
+      return `⏰ Reminder: Please verify your email to start posting listings`
     
     default:
       return 'You have a new notification'
@@ -164,16 +160,6 @@ export const NotificationHelpers = {
     return createNotification(prisma, {
       userId,
       type: 'EMAIL_VERIFIED',
-      payload: {
-        verifiedAt: new Date().toISOString()
-      }
-    })
-  },
-
-  async phoneVerified(prisma: PrismaClient, userId: string) {
-    return createNotification(prisma, {
-      userId,
-      type: 'PHONE_VERIFIED',
       payload: {
         verifiedAt: new Date().toISOString()
       }
@@ -335,12 +321,11 @@ export const NotificationHelpers = {
     })
   },
 
-  async verificationReminder(prisma: PrismaClient, userId: string, verificationType: 'email' | 'phone') {
+  async verificationReminder(prisma: PrismaClient, userId: string) {
     return createNotification(prisma, {
       userId,
       type: 'VERIFICATION_REMINDER',
       payload: {
-        verificationType,
         sentAt: new Date().toISOString()
       }
     })

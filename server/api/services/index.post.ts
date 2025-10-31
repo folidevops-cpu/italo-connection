@@ -1,17 +1,11 @@
 import { PrismaClient } from '@prisma/client'
+import { requireEmailVerification } from '../../utils/auth'
 
 const prisma = new PrismaClient()
 
 export default defineEventHandler(async (event) => {
-  // Check authentication
-  const { user } = await getUserSession(event)
-  
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized - Please login'
-    })
-  }
+  // Check authentication and email verification
+  const userData = await requireEmailVerification(event)
 
   const body = await readBody(event)
   const { name, description, serviceTypeId, location, price, images } = body
@@ -42,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
     // Get user's profile to get coordinates
     const userProfile = await prisma.profile.findUnique({
-      where: { userId: (user as any).id },
+      where: { userId: userData.id },
       select: { latitude: true, longitude: true }
     })
 
@@ -56,7 +50,7 @@ export default defineEventHandler(async (event) => {
         latitude: userProfile?.latitude || null,
         longitude: userProfile?.longitude || null,
         price: parseFloat(price),
-        ownerId: (user as any).id,
+        ownerId: userData.id,
         status: 'APPROVED',
         media: images && images.length > 0 ? {
           create: images.map((media: any, index: number) => ({

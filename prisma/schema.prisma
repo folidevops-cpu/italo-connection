@@ -11,9 +11,7 @@ datasource db {
 model User {
   id                 String              @id @default(cuid())
   email              String              @unique
-  phone              String?             @unique
   emailVerified      Boolean             @default(false)
-  phoneVerified      Boolean             @default(false)
   passwordHash       String
   role               String              @default("USER")
   suspended          Boolean             @default(false)

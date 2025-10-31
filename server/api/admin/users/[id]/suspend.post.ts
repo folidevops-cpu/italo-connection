@@ -54,8 +54,7 @@ export default defineEventHandler(async (event) => {
         suspended: true,
         suspendedAt: new Date(),
         suspensionReason: reason || 'No reason provided',
-        emailVerified: false,
-        phoneVerified: false
+        emailVerified: false
       },
       include: {
         profile: true

@@ -66,7 +66,6 @@ export default defineEventHandler(async (event) => {
         email: true,
         role: true,
         emailVerified: true,
-        phoneVerified: true,
         suspended: true,
         suspendedAt: true,
         suspensionReason: true,

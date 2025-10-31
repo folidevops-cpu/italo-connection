@@ -26,11 +26,9 @@ export default defineEventHandler(async (event) => {
           select: {
             id: true,
             email: false, // Don't expose email
-            phone: false, // Don't expose phone
             role: true,
             createdAt: true,
             emailVerified: true,
-            phoneVerified: true,
             deletedAt: true,
             listings: {
               where: {
@@ -95,17 +93,17 @@ export default defineEventHandler(async (event) => {
 
     if (isEmailVerified) {
       // Email verified users can see full contact information
-      phone = (profile as any).phone
-      whatsapp = (profile as any).whatsapp
+      phone = profile.phone
+      whatsapp = profile.whatsapp
     } else if (isLoggedIn) {
       // Logged in but not email verified users see masked info
-      phone = (profile as any).phone ? maskContact((profile as any).phone) : null
-      whatsapp = (profile as any).whatsapp ? maskContact((profile as any).whatsapp) : null
+      phone = profile.phone ? maskContact(profile.phone) : null
+      whatsapp = profile.whatsapp ? maskContact(profile.whatsapp) : null
       contactMessage = 'Verify your email to see full contact details'
     } else {
       // Not logged in users see masked info
-      phone = (profile as any).phone ? maskContact((profile as any).phone) : null
-      whatsapp = (profile as any).whatsapp ? maskContact((profile as any).whatsapp) : null
+      phone = profile.phone ? maskContact(profile.phone) : null
+      whatsapp = profile.whatsapp ? maskContact(profile.whatsapp) : null
       contactMessage = 'Please login and verify your email to see full contact details'
     }
 
@@ -128,7 +126,6 @@ export default defineEventHandler(async (event) => {
       canSeeFullContact: isEmailVerified,
       memberSince: profile.user.createdAt,
       emailVerified: profile.user.emailVerified,
-      phoneVerified: profile.user.phoneVerified,
       totalListings: profile.user.listings.length,
       totalServices: profile.user.services.length,
       listings: profile.user.listings.map(listing => ({

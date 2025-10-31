@@ -91,8 +91,6 @@ export default defineOAuthGoogleEventHandler({
           role: user!.role,
           displayName: user!.profile?.displayName || googleUser.name,
           emailVerified: user!.emailVerified,
-          phoneVerified: user!.phoneVerified || false,
-          phone: user!.phone,
           avatarUrl: user!.profile?.avatarUrl || googleUser.picture,
           provider: 'google',
           suspended: (user as any).suspended || false,

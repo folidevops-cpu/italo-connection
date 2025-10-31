@@ -47,5 +47,14 @@
     "loading": "Caricamento...",
     "error": "Errore",
     "success": "Successo"
+  },
+  "verification": {
+    "emailNotVerified": "Il tuo indirizzo email non è verificato.",
+    "pleaseVerify": "Controlla la tua email e clicca sul link di verifica per creare annunci e servizi.",
+    "resend": "Reinvia email",
+    "sending": "Invio...",
+    "emailRequired": "Verifica email richiesta",
+    "verifyToCreateListings": "Verifica la tua email per creare annunci",
+    "verifyToCreateServices": "Verifica la tua email per creare servizi"
   }
 }

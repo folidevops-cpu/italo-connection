@@ -77,8 +77,6 @@ async function main() {
         email,
         passwordHash: hashedPassword,
         emailVerified: faker.datatype.boolean(0.8), // 80% verified
-        phoneVerified: faker.datatype.boolean(0.5), // 50% verified
-        phone: faker.helpers.maybe(() => faker.phone.number(), { probability: 0.7 }),
         role: isAdmin ? 'ADMIN' : 'USER',
         profile: {
           create: {
@@ -191,7 +189,7 @@ async function main() {
       await prisma.notification.create({
         data: {
           userId: user.id,
-          type: faker.helpers.arrayElement(['LISTING_APPROVED', 'LISTING_REJECTED', 'SERVICE_APPROVED', 'SERVICE_REJECTED', 'ACCOUNT_VERIFIED', 'NEW_MESSAGE']),
+          type: faker.helpers.arrayElement(['LISTING_APPROVED', 'LISTING_REJECTED', 'EMAIL_VERIFIED', 'NEW_MESSAGE', 'ADMIN_MESSAGE']),
           payload: {
             title: faker.lorem.sentence(),
             message: faker.lorem.paragraph()

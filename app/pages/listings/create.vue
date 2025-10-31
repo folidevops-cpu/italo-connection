@@ -365,7 +365,7 @@
 <script setup lang="ts">
 // ✅ Always use definePageMeta for page configuration
 definePageMeta({
-  middleware: "auth",
+  middleware: ["auth", "email-verified"],
 });
 
 // Set page meta

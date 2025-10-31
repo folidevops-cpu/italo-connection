@@ -48,22 +48,6 @@
               placeholder="Enter your email"
             />
           </div>
-
-          <div>
-            <label for="phone" class="block text-sm font-medium text-gray-700">
-              Phone Number *
-            </label>
-            <input
-              id="phone"
-              v-model="form.phone"
-              name="phone"
-              type="tel"
-              autocomplete="tel"
-              required
-              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="Enter your phone number"
-            />
-          </div>
           
           <div>
             <label for="password" class="block text-sm font-medium text-gray-700">
@@ -180,7 +164,6 @@ useSeoMeta({
 const form = ref({
   displayName: '',
   email: '',
-  phone: '',
   password: '',
   confirmPassword: '',
   acceptTerms: false
@@ -199,7 +182,6 @@ if (loggedIn.value) {
 // Form validation
 const isFormValid = computed(() => {
   return form.value.email && 
-         form.value.phone && 
          form.value.password && 
          form.value.confirmPassword && 
          form.value.password === form.value.confirmPassword &&
@@ -228,7 +210,6 @@ const handleRegister = async () => {
       method: 'POST',
       body: {
         email: form.value.email,
-        phone: form.value.phone,
         password: form.value.password,
         displayName: form.value.displayName
       }

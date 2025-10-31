@@ -100,8 +100,6 @@ export default defineEventHandler(async (event) => {
         role: user.role,
         displayName: user.profile?.displayName || user.email.split('@')[0],
         emailVerified: user.emailVerified,
-        phoneVerified: user.phoneVerified,
-        phone: user.phone,
         avatarUrl: user.profile?.avatarUrl || null,
         provider: 'email',
         suspended: (user as any).suspended || false,

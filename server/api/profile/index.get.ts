@@ -15,23 +15,18 @@ export default defineEventHandler(async (event) => {
   try {
     const userData = user as any
     
-    console.log('Session user data:', userData)
-    
     // First verify the user exists in the database
     const dbUser = await prisma.user.findUnique({
       where: { id: userData.id },
       select: {
         id: true,
         email: true,
-        phone: true,
         emailVerified: true,
-        phoneVerified: true,
         role: true
       }
     })
     
     if (!dbUser) {
-      console.error('User not found in database:', userData.id)
       // Clear the invalid session
       await clearUserSession(event)
       throw createError({
@@ -47,9 +42,7 @@ export default defineEventHandler(async (event) => {
         user: {
           select: {
             email: true,
-            phone: true,
             emailVerified: true,
-            phoneVerified: true,
             role: true
           }
         }
@@ -58,7 +51,6 @@ export default defineEventHandler(async (event) => {
     
     // Create profile if it doesn't exist
     if (!profile) {
-      console.log('Creating new profile for user:', userData.id)
       profile = await prisma.profile.create({
         data: {
           userId: userData.id,
@@ -68,9 +60,7 @@ export default defineEventHandler(async (event) => {
           user: {
             select: {
               email: true,
-              phone: true,
               emailVerified: true,
-              phoneVerified: true,
               role: true
             }
           }

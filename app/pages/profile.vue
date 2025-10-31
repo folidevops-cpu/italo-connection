@@ -60,7 +60,7 @@
             Account Verification
           </h2>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
             <div>
               <label class="block text-sm font-medium text-gray-700"
                 >Email</label
@@ -74,32 +74,6 @@
                 />
                 <span
                   v-if="profile.user.emailVerified"
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                >
-                  Verified
-                </span>
-                <span
-                  v-else
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-                >
-                  Not Verified
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700"
-                >Phone</label
-              >
-              <div class="mt-1 flex items-center gap-2">
-                <input
-                  type="tel"
-                  :value="profile.user.phone || 'Not provided'"
-                  disabled
-                  class="flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 bg-gray-50 text-gray-500 sm:text-sm"
-                />
-                <span
-                  v-if="profile.user.phoneVerified"
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
                 >
                   Verified
@@ -739,9 +713,7 @@ const {
     avatarUrl: "",
     user: {
       email: "",
-      phone: "",
       emailVerified: false,
-      phoneVerified: false,
       role: "user",
     },
   }),

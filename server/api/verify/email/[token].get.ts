@@ -56,8 +56,6 @@ export default defineEventHandler(async (event) => {
       role: updatedUser.role,
       displayName: updatedUser.profile?.displayName || updatedUser.email.split('@')[0],
       emailVerified: updatedUser.emailVerified,
-      phoneVerified: updatedUser.phoneVerified,
-      phone: updatedUser.phone,
       avatarUrl: updatedUser.profile?.avatarUrl || null,
       provider: 'email'
     },

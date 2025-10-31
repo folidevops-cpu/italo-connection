@@ -15,10 +15,13 @@
         <div class="flex flex-col md:flex-row gap-6">
           <!-- Avatar -->
           <div class="flex-shrink-0">
-            <img 
-              :src="userProfile.avatarUrl || '/default-avatar.png'" 
-              :alt="userProfile.displayName"
-              class="w-32 h-32 rounded-full object-cover border-4 border-blue-100"
+            <Avatar 
+              :avatar-url="userProfile.avatarUrl"
+              :name="userProfile.firstName"
+              :display-name="userProfile.displayName"
+              size="2xl"
+              :border="true"
+              border-color="border-blue-100"
             />
           </div>
 

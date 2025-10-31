@@ -115,20 +115,14 @@
               <!-- Current Avatar Display -->
               <div class="flex-shrink-0">
                 <div class="relative">
-                  <img
-                    v-if="form.avatarUrl"
-                    :src="form.avatarUrl"
-                    alt="Profile avatar"
-                    class="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                  <Avatar 
+                    :avatar-url="form.avatarUrl"
+                    :name="form.firstName"
+                    :display-name="form.displayName"
+                    size="2xl"
+                    :border="true"
+                    border-color="border-gray-200"
                   />
-                  <div
-                    v-else
-                    class="w-32 h-32 rounded-full bg-blue-600 flex items-center justify-center border-4 border-gray-200"
-                  >
-                    <span class="text-white text-4xl font-bold">
-                      {{ (form.firstName || 'U').charAt(0).toUpperCase() }}
-                    </span>
-                  </div>
                   
                   <!-- Remove Avatar Button -->
                   <button
